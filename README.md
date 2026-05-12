@@ -1,59 +1,257 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Informasi Pendidikan & Event Akademik
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+RESTful API backend untuk Sistem Informasi Pendidikan & Event Akademik menggunakan Laravel 12.
 
-## About Laravel
+## Deskripsi Project
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Backend API untuk aplikasi multi-platform:
+- **Mobile App** (untuk Mahasiswa/Students)
+- **Web App** menggunakan Laravel Blade (untuk Admin & Dosen/Lecturer)
+- **Database**: MySQL
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Framework**: Laravel 12
+- **PHP**: 8.2+
+- **Database**: MySQL
+- **Authentication**: Laravel Sanctum (token-based)
+- **API**: RESTful JSON API
 
-## Learning Laravel
+## Fitur
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Role-Based Access Control
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Fitur | Mahasiswa | Dosen | Admin |
+|-------|-----------|-------|-------|
+| Lihat Event | ✓ | ✓ | ✓ |
+| Buat Event | ✗ | ✓ | ✓ |
+| Update Event | ✗ | ✓ | ✓ |
+| Hapus Event | ✗ | ✓ | ✓ |
+| Lihat Informasi | ✓ | ✓ | ✓ |
+| Kelola Informasi | ✗ | ✗ | ✓ |
+| Lihat Notifikasi | ✓ | ✗ | ✗ |
+| Kelola User | ✗ | ✗ | ✓ |
 
-## Laravel Sponsors
+### Modul
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Authentication**: Login, Register, Logout dengan Sanctum
+- **Event**: CRUD event dengan auto-notifikasi ke mahasiswa
+- **Informasi**: CRUD informasi pendidikan
+- **Notifikasi**: Sistem notifikasi untuk mahasiswa
+- **User Management**: Manajemen user (Admin only)
 
-### Premium Partners
+## Installation
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Prerequisites
 
-## Contributing
+- PHP 8.2+
+- Composer 2.x
+- MySQL 5.7+ atau MariaDB 10.3+
+- Git
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Steps
 
-## Code of Conduct
+```bash
+# Clone repository
+git clone https://github.com/tembokbaleko123/admin-event-bumigora.git
+cd admin-event-bumigora
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Install dependencies
+composer install
 
-## Security Vulnerabilities
+# Copy environment file
+cp .env.example .env
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Edit .env with your MySQL credentials:
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=admin_event_bumigora
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# Create MySQL database
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS admin_event_bumigora;"
+
+# Generate app key
+php artisan key:generate
+
+# Run migrations
+php artisan migrate
+
+# (Optional) Seed database with sample data
+php artisan db:seed
+
+# Start development server
+php artisan serve
+```
+
+Server akan berjalan di `http://localhost:8000`
+
+## Sample Users
+
+Setelah menjalankan seeder, data sample berikut tersedia:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@example.com | password |
+| Dosen | dosen@example.com | password |
+| Dosen | dosen2@example.com | password |
+| Mahasiswa | mahasiswa@example.com | password |
+| Mahasiswa | mahasiswa2@example.com | password |
+| Mahasiswa | mahasiswa3@example.com | password |
+
+## API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/register` | Register user baru |
+| POST | `/api/login` | Login user |
+| POST | `/api/logout` | Logout user |
+| GET | `/api/me` | Get current user |
+
+### Events
+
+| Method | Endpoint | Role | Deskripsi |
+|--------|----------|------|-----------|
+| GET | `/api/events` | All | List semua event |
+| GET | `/api/events/{id}` | All | Detail event |
+| POST | `/api/events` | Dosen, Admin | Buat event |
+| PUT | `/api/events/{id}` | Dosen, Admin | Update event |
+| DELETE | `/api/events/{id}` | Dosen, Admin | Hapus event |
+
+### Informasi
+
+| Method | Endpoint | Role | Deskripsi |
+|--------|----------|------|-----------|
+| GET | `/api/informasis` | All | List semua informasi |
+| GET | `/api/informasis/{id}` | All | Detail informasi |
+| POST | `/api/informasis` | Admin | Buat informasi |
+| PUT | `/api/informasis/{id}` | Admin | Update informasi |
+| DELETE | `/api/informasis/{id}` | Admin | Hapus informasi |
+
+### Notifikasi
+
+| Method | Endpoint | Role | Deskripsi |
+|--------|----------|------|-----------|
+| GET | `/api/notifikasis` | Mahasiswa | List notifikasi |
+| GET | `/api/notifikasis/unread` | Mahasiswa | List unread |
+| PUT | `/api/notifikasis/{id}/read` | Mahasiswa | Mark as read |
+| PUT | `/api/notifikasis/read-all` | Mahasiswa | Mark all read |
+| DELETE | `/api/notifikasis/{id}` | Mahasiswa | Hapus notifikasi |
+
+### User Management
+
+| Method | Endpoint | Role | Deskripsi |
+|--------|----------|------|-----------|
+| GET | `/api/users` | Admin | List semua user |
+| GET | `/api/users/{id}` | Admin | Detail user |
+| PUT | `/api/users/{id}` | Admin | Update user |
+| DELETE | `/api/users/{id}` | Admin | Hapus user |
+
+## API Response Format
+
+### Success Response
+```json
+{
+    "status": true,
+    "message": "Operation successful",
+    "data": { ... }
+}
+```
+
+### Error Response
+```json
+{
+    "status": false,
+    "message": "Error description"
+}
+```
+
+## Authentication
+
+Semua endpoint kecuali login & register memerlukan header:
+
+```
+Authorization: Bearer {token}
+```
+
+Token diperoleh dari response login.
+
+## Postman Collection
+
+Import file `postman_collection.json` ke Postman untuk testing semua endpoint API.
+
+## Project Structure
+
+```
+admin-event-bumigora/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuthController.php
+│   │   │   ├── EventController.php
+│   │   │   ├── InformasiController.php
+│   │   │   ├── NotifikasiController.php
+│   │   │   └── UserController.php
+│   │   └── Middleware/
+│   │       └── RoleMiddleware.php
+│   └── Models/
+│       ├── User.php
+│       ├── Event.php
+│       ├── Informasi.php
+│       └── Notifikasi.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── routes/
+│   └── api.php
+└── postman_collection.json
+```
+
+## Data Models
+
+### User
+- `id`, `nama`, `email`, `password`, `role`
+- Role: 'mahasiswa', 'dosen', 'admin'
+
+### Event
+- `id`, `judul`, `tanggal`, `lokasi`, `deskripsi`, `created_by`
+
+### Informasi
+- `id`, `judul`, `isi`, `tanggal`, `dibuat_oleh`
+
+### Notifikasi
+- `id`, `user_id`, `event_id`, `pesan`, `status`
+- Status: 'unread', 'read'
+
+## Development Commands
+
+```bash
+# Start server
+php artisan serve
+
+# Run migrations
+php artisan migrate
+
+# Reset and reseed
+php artisan migrate:fresh --seed
+
+# Clear cache
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+
+# Run tests
+php artisan test
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License
+
+## Author
+
+GitHub: [tembokbaleko123](https://github.com/tembokbaleko123)

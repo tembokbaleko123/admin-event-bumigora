@@ -1,0 +1,654 @@
+{
+	"info": {
+		"_postman_id": "admin-event-bumigora-api",
+		"name": "Sistem Informasi Pendidikan & Event Akademik",
+		"description": "API Collection untuk Sistem Informasi Pendidikan & Event Akademik (Backend Laravel)\n\n## Authentication\n- Semua endpoint kecuali login & register memerlukan header:\n  `Authorization: Bearer {token}`\n\n## Roles\n- mahasiswa: Lihat event, informasi, notifikasi\n- dosen: CRUD event\n- admin: CRUD semua data + manajemen user\n\n## Sample Users (after seeding)\n- Admin: admin@example.com / password\n- Dosen: dosen@example.com / password  \n- Mahasiswa: mahasiswa@example.com / password",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "AUTHENTICATION",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nama\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\",\n    \"role\": \"mahasiswa\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/register",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "register"]
+						},
+						"description": "Register user baru. Role: mahasiswa, dosen, atau admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('auth_token', jsonData.data.token);",
+									"    pm.collectionVariables.set('user_role', jsonData.data.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"mahasiswa@example.com\",\n    \"password\": \"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/login",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "login"]
+						},
+						"description": "Login user. Response includes token yang perlu disimpan untuk request berikutnya."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/logout",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "logout"]
+						},
+						"description": "Logout user (invalidate token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/me",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "me"]
+						},
+						"description": "Ambil data user yang sedang login"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EVENTS",
+			"item": [
+				{
+					"name": "Get All Events (Mahasiswa, Dosen, Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/events",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "events"]
+						},
+						"description": "Ambil semua event. Semua role bisa mengakses."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Event Detail (Mahasiswa, Dosen, Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/events/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "events", "1"]
+						},
+						"description": "Ambil detail event berdasarkan ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Event (Dosen, Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"judul\": \"Workshop React Native\",\n    \"tanggal\": \"2024-07-15\",\n    \"lokasi\": \"Lab Mobile Gedung C\",\n    \"deskripsi\": \"Workshop pengembangan aplikasi mobile dengan React Native untuk pemula.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/events",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "events"]
+						},
+						"description": "Tambah event baru. Event akan otomatis mengirim notifikasi ke semua mahasiswa."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Event (Dosen, Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"judul\": \"Workshop React Native - UPDATED\",\n    \"tanggal\": \"2024-07-20\",\n    \"lokasi\": \"Lab Mobile Lt. 2\",\n    \"deskripsi\": \"Workshop pengembangan aplikasi mobile dengan React Native - SEGALA TINGKATAN.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/events/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "events", "1"]
+						},
+						"description": "Update event. Akan mengirim notifikasi update ke mahasiswa."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Event (Dosen, Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/events/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "events", "1"]
+						},
+						"description": "Hapus event. Akan mengirim notifikasi pembatalan ke mahasiswa."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "INFORMASI",
+			"item": [
+				{
+					"name": "Get All Informasi (Mahasiswa, Dosen, Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/informasis",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "informasis"]
+						},
+						"description": "Ambil semua informasi pendidikan. Semua role bisa mengakses."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Informasi Detail (Mahasiswa, Dosen, Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/informasis/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "informasis", "1"]
+						},
+						"description": "Ambil detail informasi berdasarkan ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Informasi (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"judul\": \"Pengumuman Libur Nasional\",\n    \"isi\": \"Libur nasional akan dilaksanakan pada tanggal 17 Agustus 2024. Seluruh aktivitas perkuliahan ditiadakan.\",\n    \"tanggal\": \"2024-08-10\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/informasis",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "informasis"]
+						},
+						"description": "Tambah informasi baru. Hanya admin yang bisa."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Informasi (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"judul\": \"Pengumuman Libur Nasional - UPDATED\",\n    \"isi\": \"Libur nasional akan dilaksanakan pada tanggal 17 Agustus 2024. Seluruh aktivitas perkuliahan dan administrasi ditiadakan.\",\n    \"tanggal\": \"2024-08-12\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/informasis/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "informasis", "1"]
+						},
+						"description": "Update informasi. Hanya admin yang bisa."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Informasi (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/informasis/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "informasis", "1"]
+						},
+						"description": "Hapus informasi. Hanya admin yang bisa."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "NOTIFIKASI",
+			"item": [
+				{
+					"name": "Get All Notifikasi (Mahasiswa)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/notifikasis",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "notifikasis"]
+						},
+						"description": "Ambil semua notifikasi user yang login. Hanya mahasiswa."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Notifikasi (Mahasiswa)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/notifikasis/unread",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "notifikasis", "unread"]
+						},
+						"description": "Ambil notifikasi yang belum dibaca. Hanya mahasiswa."
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Notifikasi as Read (Mahasiswa)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/notifikasis/1/read",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "notifikasis", "1", "read"]
+						},
+						"description": "Tandai notifikasi sebagai sudah dibaca. Hanya mahasiswa."
+					},
+					"response": []
+				},
+				{
+					"name": "Mark All Notifikasi as Read (Mahasiswa)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/notifikasis/read-all",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "notifikasis", "read-all"]
+						},
+						"description": "Tandai semua notifikasi sebagai sudah dibaca. Hanya mahasiswa."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Notifikasi (Mahasiswa)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/notifikasis/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "notifikasis", "1"]
+						},
+						"description": "Hapus notifikasi. Hanya mahasiswa."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "USER MANAGEMENT (Admin Only)",
+			"item": [
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/users",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Ambil semua user. Hanya admin."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Detail (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "users", "1"]
+						},
+						"description": "Ambil detail user berdasarkan ID. Hanya admin."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nama\": \"Nama Updated\",\n    \"email\": \"updated@example.com\",\n    \"role\": \"dosen\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "users", "1"]
+						},
+						"description": "Update user. Hanya admin."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"isSecret": false
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/5",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "users", "5"]
+						},
+						"description": "Hapus user. Hanya admin. Tidak bisa hapus diri sendiri."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "auth_token",
+			"value": ""
+		},
+		{
+			"key": "user_role",
+			"value": ""
+		}
+	]
+}

@@ -45,21 +45,21 @@
 </div>
 
 <!-- Charts Row -->
-<div class="row g-4 mb-4">
+<div class="row g-4 mb-4" style="animation:fadeInUp .5s var(--ease-out-expo) .1s both">
     <div class="col-xl-8">
-        <div class="card"><div class="card-header"><i class="bi bi-graph-up me-2 text-primary"></i> Event per Bulan (6 Bulan Terakhir)</div>
+        <div class="card" style="animation-delay:.12s"><div class="card-header"><i class="bi bi-graph-up me-2 text-primary"></i> Event per Bulan (6 Bulan Terakhir)</div>
         <div class="card-body"><canvas id="eventsChart" height="90"></canvas></div></div>
     </div>
     <div class="col-xl-4">
-        <div class="card"><div class="card-header"><i class="bi bi-pie-chart-fill me-2 text-primary"></i> Komposisi User</div>
+        <div class="card" style="animation-delay:.18s"><div class="card-header"><i class="bi bi-pie-chart-fill me-2 text-primary"></i> Komposisi User</div>
         <div class="card-body"><canvas id="usersChart" height="180"></canvas></div></div>
     </div>
 </div>
 
 <!-- Recent Events & Stats Row -->
-<div class="row g-4">
+<div class="row g-4" style="animation:fadeInUp .5s var(--ease-out-expo) .2s both">
     <div class="col-xl-8">
-        <div class="card"><div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card" style="animation-delay:.22s"><div class="card-header d-flex justify-content-between align-items-center">
             <span><i class="bi bi-clock-history me-2 text-primary"></i> Event Terbaru</span>
             <a href="{{ route('admin.events.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
         </div>
@@ -84,7 +84,7 @@
         </div></div>
     </div>
     <div class="col-xl-4">
-        <div class="card"><div class="card-header"><i class="bi bi-bell-fill me-2 text-primary"></i> Notifikasi</div>
+        <div class="card" style="animation-delay:.28s"><div class="card-header"><i class="bi bi-bell-fill me-2 text-primary"></i> Notifikasi</div>
         <div class="card-body">
             <div class="d-flex align-items-center gap-3 mb-3 p-3 bg-soft-primary rounded-3">
                 <div><i class="bi bi-envelope-open-fill fs-3 text-primary"></i></div>

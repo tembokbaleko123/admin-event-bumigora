@@ -51,13 +51,17 @@
             animation:shimmer 3s linear infinite;
         }
         .login-header{text-align:center;margin-bottom:36px;animation:slideIn .6s cubic-bezier(.16,1,.3,1) .2s both}
-        .login-header .logo{
-            width:72px;height:72px;
-            background:linear-gradient(135deg,#4f46e5,#818cf8);
+        .login-header .logo-wrap{
+            width:80px;height:80px;margin:0 auto 20px;
+            background:white;
             border-radius:20px;display:inline-flex;align-items:center;justify-content:center;
-            font-size:34px;color:#fff;margin-bottom:20px;
+            box-shadow:0 8px 24px rgba(79,70,229,.25);
             animation:float 4s ease-in-out infinite;
-            box-shadow:0 8px 24px rgba(79,70,229,.3);
+            overflow:hidden;
+            padding:8px;
+        }
+        .login-header .logo-wrap img{
+            width:100%;height:100%;object-fit:contain;
         }
         .login-header h1{font-size:24px;font-weight:800;color:#1e293b;letter-spacing:-.5px}
         .login-header p{font-size:14px;color:#64748b;margin-top:4px}
@@ -89,7 +93,6 @@
             font-family:'Inter',sans-serif;cursor:pointer;
             position:relative;overflow:hidden;
             animation:slideIn .5s cubic-bezier(.16,1,.3,1) .5s both;
-            background-size:200% 200%;animation:shimmer 3s linear infinite,slideIn .5s cubic-bezier(.16,1,.3,1) .5s both;
         }
         .btn-login:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(79,70,229,.4)}
         .btn-login:active{transform:translateY(0) scale(.98)}
@@ -144,8 +147,8 @@
     <div class="login-container">
         <div class="card-login">
             <div class="login-header">
-                <div class="logo">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s" alt="UNBI" style="width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1);">
+                <div class="logo-wrap">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s" alt="Universitas Bumigora" loading="lazy">
                 </div>
                 <h1>Selamat Datang</h1>
                 <p>Universitas Bumigora — Panel Admin</p>
@@ -189,7 +192,6 @@
             document.getElementById('btnSpinner').style.display='inline-block';
             document.getElementById('btnLogin').disabled=true;
         });
-        // Input focus animation
         document.querySelectorAll('.form-control').forEach(function(input){
             input.addEventListener('focus',function(){
                 this.closest('.input-wrap').querySelector('.input-icon').style.color='#4f46e5';

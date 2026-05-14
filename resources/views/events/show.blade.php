@@ -15,18 +15,40 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="mb-4"><h5 class="text-muted mb-1" style="font-size:13px">JUDUL</h5><h4 class="fw-bold">{{ $event->judul }}</h4></div>
-                <div class="row mb-4">
-                    <div class="col-md-4"><h5 class="text-muted mb-1" style="font-size:13px">TANGGAL</h5><p class="fw-semibold"><i class="bi bi-calendar me-1"></i> {{ $event->tanggal->format('d F Y') }}</p></div>
-                    <div class="col-md-4"><h5 class="text-muted mb-1" style="font-size:13px">LOKASI</h5><p class="fw-semibold"><i class="bi bi-geo-alt me-1"></i> {{ $event->lokasi }}</p></div>
-                    <div class="col-md-4"><h5 class="text-muted mb-1" style="font-size:13px">DIBUAT OLEH</h5><p class="fw-semibold"><i class="bi bi-person me-1"></i> {{ $event->creator->nama ?? '-' }}</p></div>
+                <div class="mb-4">
+                    <h5 class="text-muted mb-1" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">JUDUL</h5>
+                    <h4 class="fw-bold" style="color:var(--gray-900)">{{ $event->judul }}</h4>
+                </div>
+                <div class="row mb-4 g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3" style="background:var(--gray-50)">
+                            <h5 class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">TANGGAL</h5>
+                            <p class="fw-semibold mb-0"><i class="bi bi-calendar me-1 text-primary"></i> {{ $event->tanggal->format('d F Y') }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3" style="background:var(--gray-50)">
+                            <h5 class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">LOKASI</h5>
+                            <p class="fw-semibold mb-0"><i class="bi bi-geo-alt me-1 text-primary"></i> {{ $event->lokasi }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3" style="background:var(--gray-50)">
+                            <h5 class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">DIBUAT OLEH</h5>
+                            <p class="fw-semibold mb-0"><i class="bi bi-person me-1 text-primary"></i> {{ $event->creator->nama ?? '-' }}</p>
+                        </div>
+                    </div>
                 </div>
                 @if($event->deskripsi)
-                <div><h5 class="text-muted mb-1" style="font-size:13px">DESKRIPSI</h5><p style="white-space:pre-wrap">{{ $event->deskripsi }}</p></div>
+                <div class="mt-4">
+                    <h5 class="text-muted mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">DESKRIPSI</h5>
+                    <div class="p-4 rounded-3" style="background:var(--gray-50);white-space:pre-wrap;line-height:1.7">{{ $event->deskripsi }}</div>
+                </div>
                 @endif
             </div>
-            <div class="card-footer text-muted">
-                <small>Dibuat: {{ $event->created_at->format('d M Y H:i') }} | Diupdate: {{ $event->updated_at->format('d M Y H:i') }}</small>
+            <div class="card-footer text-muted d-flex justify-content-between align-items-center">
+                <small><i class="bi bi-clock me-1"></i> Dibuat: {{ $event->created_at->format('d M Y H:i') }}</small>
+                <small><i class="bi bi-clock-history me-1"></i> Diupdate: {{ $event->updated_at->format('d M Y H:i') }}</small>
             </div>
         </div>
     </div>

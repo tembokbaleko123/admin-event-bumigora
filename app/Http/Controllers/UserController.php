@@ -65,9 +65,8 @@ class UserController extends Controller
             'role' => 'sometimes|required|in:mahasiswa,dosen,admin',
         ]);
 
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
+        // Password akan di-hash otomatis oleh 'hashed' cast di model User
+        // Tidak perlu Hash::make() manual untuk menghindari double hashing
 
         $user->update($validated);
 

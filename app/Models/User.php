@@ -87,7 +87,7 @@ class User extends Authenticatable
         return self::create([
             'nama' => $data['nama'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'],
             'role' => $data['role'] ?? 'mahasiswa',
         ]);
     }

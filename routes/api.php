@@ -33,17 +33,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    // ==================== MAHASISWA ROUTES ====================
-    // Use Case: Login, Lihat Informasi, Lihat Event, Lihat Detail Event, Terima Notifikasi Event
-    Route::middleware('role:mahasiswa')->group(function () {
+    // ==================== VIEW ALL (MAHASISWA, DOSEN, ADMIN) ====================
+    // Use Case: Lihat Event, Lihat Informasi
+    Route::middleware('role:mahasiswa,dosen,admin')->group(function () {
         // Event Routes - Lihat Event & Detail
         Route::get('/events', [EventController::class, 'index']);
         Route::get('/events/{id}', [EventController::class, 'show']);
-        
+
         // Informasi Routes - Lihat Informasi & Detail
         Route::get('/informasis', [InformasiController::class, 'index']);
         Route::get('/informasis/{id}', [InformasiController::class, 'show']);
-        
+    });
+
+    // ==================== MAHASISWA ROUTES ====================
+    // Use Case: Notifikasi Event
+    Route::middleware('role:mahasiswa')->group(function () {
         // Notifikasi Routes - Terima Notifikasi Event
         Route::get('/notifikasis', [NotifikasiController::class, 'index']);
         Route::get('/notifikasis/unread', [NotifikasiController::class, 'unread']);
@@ -52,17 +56,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/notifikasis/{id}', [NotifikasiController::class, 'destroy']);
     });
 
-    // ==================== DOSEN ROUTES ====================
-    // Use Case: Login, Input Event, Kelola Event (CRUD)
-    Route::middleware('role:dosen')->group(function () {
+    // ==================== DOSEN & ADMIN ROUTES ====================
+    // Use Case: Input Event, Kelola Event (CRUD)
+    Route::middleware('role:dosen,admin')->group(function () {
         // Event Routes - Input & Kelola Event
         Route::post('/events', [EventController::class, 'store']);
         Route::put('/events/{id}', [EventController::class, 'update']);
         Route::delete('/events/{id}', [EventController::class, 'destroy']);
     });
 
-    // ==================== ADMIN ROUTES ====================
-    // Use Case: Login, Kelola Data User, Kelola Informasi, Kelola Event (full CRUD)
+    // ==================== ADMIN ONLY ROUTES ====================
+    // Use Case: Kelola Data User, Kelola Informasi
     Route::middleware('role:admin')->group(function () {
         // User Management Routes
         Route::get('/users', [UserController::class, 'index']);
@@ -74,10 +78,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/informasis', [InformasiController::class, 'store']);
         Route::put('/informasis/{id}', [InformasiController::class, 'update']);
         Route::delete('/informasis/{id}', [InformasiController::class, 'destroy']);
-
-        // Event Management Routes (full CRUD)
-        Route::post('/events', [EventController::class, 'store']);
-        Route::put('/events/{id}', [EventController::class, 'update']);
-        Route::delete('/events/{id}', [EventController::class, 'destroy']);
     });
 });

@@ -740,7 +740,7 @@
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s" alt="UNBI" style="width:34px;height:34px;object-fit:contain;">
             </div>
             <div class="brand-text">
-                UNBI EduEvent
+                UBG Education Event
                 <small>Universitas Bumigora</small>
             </div>
         </a>

@@ -1,7 +1,7 @@
 # Sistem Informasi Pendidikan & Event Akademik
 ## Universitas Bumigora
 
-![Universitas Bumigora](https://bumigora.ac.id/wp-content/uploads/2022/11/Logo-Universitas-Bumigora.png)
+![Universitas Bumigora](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s)
 
 Restful API backend + Admin Panel Web untuk **Sistem Informasi Pendidikan & Event Akademik** menggunakan Laravel 12. Dibangun untuk mendukung kegiatan akademik di **Universitas Bumigora**.
 
@@ -349,5 +349,5 @@ MIT License
 ## Author
 
 **Universitas Bumigora**
+- Website: [https://ubg.ac.id/](https://ubg.ac.id/)
 - GitHub: [tembokbaleko123](https://github.com/tembokbaleko123)
-- Website: [bumigora.ac.id](https://bumigora.ac.id)

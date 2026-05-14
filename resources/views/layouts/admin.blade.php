@@ -737,7 +737,7 @@
     <aside class="sidebar">
         <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
             <div class="brand-icon" style="background:white; padding:4px;">
-                <img src="https://bumigora.ac.id/wp-content/uploads/2022/11/Logo-Universitas-Bumigora.png" alt="UNBI" style="width:34px;height:34px;object-fit:contain;">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s" alt="UNBI" style="width:34px;height:34px;object-fit:contain;">
             </div>
             <div class="brand-text">
                 UNBI EduEvent

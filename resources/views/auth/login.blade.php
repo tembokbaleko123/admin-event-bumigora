@@ -145,7 +145,7 @@
         <div class="card-login">
             <div class="login-header">
                 <div class="logo">
-                    <img src="https://bumigora.ac.id/wp-content/uploads/2022/11/Logo-Universitas-Bumigora.png" alt="UNBI" style="width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1);">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s" alt="UNBI" style="width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1);">
                 </div>
                 <h1>Selamat Datang</h1>
                 <p>Universitas Bumigora — Panel Admin</p>

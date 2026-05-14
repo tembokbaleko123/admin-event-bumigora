@@ -181,7 +181,7 @@
             </form>
             <div class="login-footer">
                 <p>Sistem Informasi Pendidikan & Event Akademik</p>
-                <small style="color:#94a3b8">&copy; {{ date('Y') }} EduEvent.</small>
+                <small style="color:#94a3b8">&copy; {{ date('Y') }} UBG Education Event.</small>
             </div>
         </div>
     </div>

@@ -12,9 +12,11 @@ class UserController extends Controller
     /**
      * Ambil semua user (admin only)
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $users = User::select('id', 'nama', 'email', 'role', 'created_at')->get();
+        $perPage = $request->input('per_page', 10);
+        $users = User::select('id', 'nama', 'email', 'role', 'created_at')
+            ->paginate($perPage);
 
         return response()->json([
             'status' => true,

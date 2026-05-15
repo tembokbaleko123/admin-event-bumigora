@@ -49,11 +49,19 @@ class Informasi extends Model
      */
     public function updateInformasi(array $data): bool
     {
-        $this->update([
-            'judul' => $data['judul'] ?? $this->judul,
-            'isi' => $data['isi'] ?? $this->isi,
-            'tanggal' => $data['tanggal'] ?? $this->tanggal,
-        ]);
+        $updateData = [];
+
+        if (array_key_exists('judul', $data)) {
+            $updateData['judul'] = $data['judul'];
+        }
+        if (array_key_exists('isi', $data)) {
+            $updateData['isi'] = $data['isi'];
+        }
+        if (array_key_exists('tanggal', $data)) {
+            $updateData['tanggal'] = $data['tanggal'];
+        }
+
+        $this->update($updateData);
 
         return true;
     }

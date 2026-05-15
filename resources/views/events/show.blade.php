@@ -2,6 +2,13 @@
 @section('title', 'Detail Event')
 @section('page-title', 'Detail Event')
 @section('page-subtitle', $event->judul)
+@section('breadcrumb')
+<a href="{{ route('admin.dashboard') }}">Dashboard</a>
+<span class="separator">›</span>
+<a href="{{ route('admin.events.index') }}">Events</a>
+<span class="separator">›</span>
+<span>{{ Str::limit($event->judul, 30) }}</span>
+@endsection
 
 @section('content')
 <div class="row">

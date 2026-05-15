@@ -19,8 +19,11 @@ class AuthController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'in:mahasiswa,dosen,admin',
+            'role' => 'in:mahasiswa',
         ]);
+
+        // Hanya role mahasiswa yang boleh daftar via endpoint publik
+        $validated['role'] = 'mahasiswa';
 
         // Menggunakan method model User::register()
         $user = User::register($validated);

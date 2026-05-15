@@ -8,11 +8,16 @@ use Illuminate\Http\Request;
 
 class InformasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $informasis = Informasi::with('creator:id,nama')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = Informasi::with('creator:id,nama');
+
+        // Search by judul
+        if ($request->has('search')) {
+            $query->where('judul', 'like', '%' . $request->search . '%');
+        }
+
+        $informasis = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         return view('informasis.index', compact('informasis'));
     }
 

@@ -49,7 +49,67 @@
             --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.04);
             --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
             --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --card-bg: #ffffff;
+            --body-bg: #f8fafc;
+            --table-hover: var(--gray-50);
+            --border-color: var(--gray-200);
         }
+
+        /* Dark Mode Overrides */
+        [data-bs-theme="dark"] {
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --table-hover: #263348;
+            --border-color: rgba(255,255,255,.08);
+        }
+        [data-bs-theme="dark"] body { background: var(--body-bg); color: #e2e8f0; }
+        [data-bs-theme="dark"] .card { background: var(--card-bg); border-color: var(--border-color); }
+        [data-bs-theme="dark"] .card-header { background: var(--card-bg); border-bottom-color: var(--border-color); }
+        [data-bs-theme="dark"] .card-footer { background: #263348; border-top-color: var(--border-color); }
+        [data-bs-theme="dark"] .header { background: rgba(30,41,59,.85); border-bottom-color: var(--border-color); backdrop-filter: blur(20px); }
+        [data-bs-theme="dark"] .stat-card { background: var(--card-bg); border-color: var(--border-color); }
+        [data-bs-theme="dark"] .table thead th { background: #263348; color: #94a3b8; border-bottom-color: var(--border-color); }
+        [data-bs-theme="dark"] .table tbody td { border-color: var(--border-color); }
+        [data-bs-theme="dark"] .table tbody tr:hover { background: var(--table-hover); }
+        [data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select { background: #1e293b; border-color: var(--border-color); color: #e2e8f0; }
+        [data-bs-theme="dark"] .form-control:hover, [data-bs-theme="dark"] .form-select:hover { border-color: #475569; }
+        [data-bs-theme="dark"] .form-control:focus, [data-bs-theme="dark"] .form-select:focus { background: #1e293b; }
+        [data-bs-theme="dark"] .input-group-text { background: #263348; border-color: var(--border-color); color: #94a3b8; }
+        [data-bs-theme="dark"] .user-dropdown { background: var(--card-bg); border-color: var(--border-color); }
+        [data-bs-theme="dark"] .user-dropdown:hover { background: #263348; }
+        [data-bs-theme="dark"] .page-link { background: var(--card-bg); border-color: var(--border-color); color: #94a3b8; }
+        [data-bs-theme="dark"] .page-item.disabled .page-link { background: #263348; }
+        [data-bs-theme="dark"] .dropdown-menu { background: var(--card-bg); border-color: var(--border-color); }
+        [data-bs-theme="dark"] .dropdown-item { color: #e2e8f0; }
+        [data-bs-theme="dark"] .dropdown-item:hover { background: #263348; }
+        [data-bs-theme="dark"] .btn-outline-secondary { color: #94a3b8; border-color: var(--border-color); }
+        [data-bs-theme="dark"] .btn-outline-secondary:hover { background: var(--border-color); color: #e2e8f0; }
+        [data-bs-theme="dark"] .bg-soft-primary { background: rgba(79,70,229,.15) !important; }
+        [data-bs-theme="dark"] .bg-soft-success { background: rgba(16,185,129,.15) !important; }
+        [data-bs-theme="dark"] .bg-soft-warning { background: rgba(245,158,11,.15) !important; }
+        [data-bs-theme="dark"] .bg-soft-danger { background: rgba(239,68,68,.15) !important; }
+        [data-bs-theme="dark"] .bg-soft-info { background: rgba(59,130,246,.15) !important; }
+        [data-bs-theme="dark"] .badge-role.admin { background: rgba(79,70,229,.2); color: #a5b4fc; }
+        [data-bs-theme="dark"] .badge-role.dosen { background: rgba(59,130,246,.2); color: #93c5fd; }
+        [data-bs-theme="dark"] .badge-role.mahasiswa { background: rgba(16,185,129,.2); color: #6ee7b7; }
+        [data-bs-theme="dark"] .text-muted { color: #94a3b8 !important; }
+
+        /* Breadcrumb */
+        .breadcrumb-custom {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-top: 2px;
+        }
+        .breadcrumb-custom a {
+            color: var(--gray-500);
+            text-decoration: none;
+            transition: color .2s;
+        }
+        .breadcrumb-custom a:hover { color: var(--primary); }
+        .breadcrumb-custom .separator { color: var(--gray-300); font-size: 10px; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -728,9 +788,19 @@
                 <div class="header-title">
                     <h5>@yield('page-title', 'Dashboard')</h5>
                     <p>@yield('page-subtitle', 'Overview sistem informasi akademik')</p>
+                    @hasSection('breadcrumb')
+                    <div class="breadcrumb-custom">
+                        @yield('breadcrumb')
+                    </div>
+                    @endif
                 </div>
             </div>
             <div class="header-right">
+                <!-- Dark Mode Toggle -->
+                <a href="#" class="btn-icon" id="themeToggle" title="Toggle Dark Mode">
+                    <i class="bi bi-moon-fill" id="themeIcon"></i>
+                </a>
+
                 <a href="#" class="btn-icon" title="Notifikasi" onclick="event.preventDefault();">
                     <i class="bi bi-bell-fill"></i>
                     @if(isset($unreadNotifikasi) && $unreadNotifikasi > 0)
@@ -793,6 +863,32 @@
 
     @stack('scripts')
     <script>
+        // Dark mode toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const html = document.documentElement;
+
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            html.setAttribute('data-bs-theme', savedTheme);
+            themeIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+
+            // Toggle theme
+            themeToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const currentTheme = html.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+                // Trigger reflow for chart.js
+                if (window.dispatchEvent) {
+                    window.dispatchEvent(new Event('resize'));
+                }
+            });
+        });
+
         // Auto-close alerts after 5s with smooth animation
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.alert-dismissible').forEach(function(alert) {

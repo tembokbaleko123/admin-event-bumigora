@@ -2,6 +2,13 @@
 @section('title', 'Detail Informasi')
 @section('page-title', 'Detail Informasi')
 @section('page-subtitle', $informasi->judul)
+@section('breadcrumb')
+<a href="{{ route('admin.dashboard') }}">Dashboard</a>
+<span class="separator">›</span>
+<a href="{{ route('admin.informasis.index') }}">Informasi</a>
+<span class="separator">›</span>
+<span>{{ Str::limit($informasi->judul, 30) }}</span>
+@endsection
 
 @section('content')
 <div class="row">

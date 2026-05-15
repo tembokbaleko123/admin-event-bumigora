@@ -9,6 +9,29 @@
         <span><i class="bi bi-calendar-event me-2 text-primary"></i> Daftar Event</span>
         <a href="{{ route('admin.events.create') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i> Tambah Event</a>
     </div>
+    <div class="card-body">
+        <!-- Search & Filter -->
+        <form method="GET" action="{{ route('admin.events.index') }}" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Cari judul event..." value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="tanggal_mulai" class="form-control" value="{{ request('tanggal_mulai') }}" title="Tanggal mulai">
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="tanggal_selesai" class="form-control" value="{{ request('tanggal_selesai') }}" title="Tanggal selesai">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i></button>
+                @if(request()->anyFilled(['search', 'tanggal_mulai', 'tanggal_selesai']))
+                <a href="{{ route('admin.events.index') }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+                @endif
+            </div>
+        </form>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table">

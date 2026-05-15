@@ -174,6 +174,11 @@
                         <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
                     </div>
                 </div>
+                <div class="mb-4 text-end">
+                    <a href="#" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:500;" onclick="event.preventDefault();alert('Silakan hubungi admin untuk reset password.')">
+                        Lupa Password?
+                    </a>
+                </div>
                 <button type="submit" class="btn-login" id="btnLogin">
                     <span id="btnText">Masuk</span>
                     <span id="btnSpinner" class="spinner" style="display:none"></span>

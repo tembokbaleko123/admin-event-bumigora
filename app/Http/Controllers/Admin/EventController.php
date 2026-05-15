@@ -12,11 +12,24 @@ class EventController extends Controller
     /**
      * Tampilkan daftar semua event
      */
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::with('creator:id,nama')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = Event::with('creator:id,nama');
+
+        // Search by judul
+        if ($request->has('search')) {
+            $query->where('judul', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by date range
+        if ($request->has('tanggal_mulai')) {
+            $query->where('tanggal', '>=', $request->tanggal_mulai);
+        }
+        if ($request->has('tanggal_selesai')) {
+            $query->where('tanggal', '<=', $request->tanggal_selesai);
+        }
+
+        $events = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         return view('events.index', compact('events'));
     }
 

@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Notifikasi Routes - Terima Notifikasi Event
         Route::get('/notifikasis', [NotifikasiController::class, 'index']);
         Route::get('/notifikasis/unread', [NotifikasiController::class, 'unread']);
+        Route::get('/notifikasis/unread/count', [NotifikasiController::class, 'unreadCount']);
         Route::put('/notifikasis/{id}/read', [NotifikasiController::class, 'markAsRead']);
         Route::put('/notifikasis/read-all', [NotifikasiController::class, 'markAllAsRead']);
         Route::delete('/notifikasis/{id}', [NotifikasiController::class, 'destroy']);

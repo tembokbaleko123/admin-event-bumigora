@@ -11,12 +11,19 @@ class InformasiController extends Controller
     /**
      * Ambil semua informasi (untuk mahasiswa, dosen, admin)
      * ALUR: User login -> pilih menu informasi -> sistem ambil data -> tampilkan
+     * Mendukung search dan pagination
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $informasis = Informasi::with('creator:id,nama')
-            ->orderBy('tanggal', 'desc')
-            ->get();
+        $query = Informasi::with('creator:id,nama');
+
+        // Search by judul
+        if ($request->has('search')) {
+            $query->where('judul', 'like', '%' . $request->search . '%');
+        }
+
+        $perPage = $request->input('per_page', 10);
+        $informasis = $query->orderBy('tanggal', 'desc')->paginate($perPage);
 
         return response()->json([
             'status' => true,

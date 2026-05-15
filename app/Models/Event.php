@@ -68,12 +68,23 @@ class Event extends Model
      */
     public function updateEvent(array $data): bool
     {
-        $this->update([
-            'judul' => $data['judul'] ?? $this->judul,
-            'tanggal' => $data['tanggal'] ?? $this->tanggal,
-            'lokasi' => $data['lokasi'] ?? $this->lokasi,
-            'deskripsi' => $data['deskripsi'] ?? $this->deskripsi,
-        ]);
+        $updateData = [];
+
+        if (array_key_exists('judul', $data)) {
+            $updateData['judul'] = $data['judul'];
+        }
+        if (array_key_exists('tanggal', $data)) {
+            $updateData['tanggal'] = $data['tanggal'];
+        }
+        if (array_key_exists('lokasi', $data)) {
+            $updateData['lokasi'] = $data['lokasi'];
+        }
+        // Allow explicitly setting deskripsi to null
+        if (array_key_exists('deskripsi', $data)) {
+            $updateData['deskripsi'] = $data['deskripsi'];
+        }
+
+        $this->update($updateData);
 
         // Kirim notifikasi update ke mahasiswa
         Notifikasi::kirimNotifikasiKeRole(
@@ -91,7 +102,7 @@ class Event extends Model
     public function hapusEvent(): bool
     {
         $judul = $this->judul;
-        
+
         $this->delete();
 
         // Kirim notifikasi pembatalan

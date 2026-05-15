@@ -13,12 +13,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ==================== CREATE SAMPLE USERS ====================
-        
+
         // Admin
         $admin = User::create([
             'nama' => 'Budi Santoso',
             'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
             'role' => 'admin',
         ]);
 
@@ -26,14 +26,14 @@ class DatabaseSeeder extends Seeder
         $dosen1 = User::create([
             'nama' => 'Dr. Ahmad Wijaya',
             'email' => 'dosen@example.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
             'role' => 'dosen',
         ]);
 
         $dosen2 = User::create([
             'nama' => 'Siti Rahayu, M.Kom',
             'email' => 'dosen2@example.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
             'role' => 'dosen',
         ]);
 
@@ -41,21 +41,21 @@ class DatabaseSeeder extends Seeder
         $mhs1 = User::create([
             'nama' => 'Rizky Pratama',
             'email' => 'mahasiswa@example.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
             'role' => 'mahasiswa',
         ]);
 
         $mhs2 = User::create([
             'nama' => 'Anisa Putri',
             'email' => 'mahasiswa2@example.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
             'role' => 'mahasiswa',
         ]);
 
         $mhs3 = User::create([
             'nama' => 'Dewi Lestari',
             'email' => 'mahasiswa3@example.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
             'role' => 'mahasiswa',
         ]);
 
@@ -81,7 +81,7 @@ class DatabaseSeeder extends Seeder
             'judul' => 'Talkshow Karir di Dunia IT',
             'tanggal' => now()->addDays(21),
             'lokasi' => 'Aula Barat',
-            'deskripsi' => 'Talkshow dengan alumni yang telah sukses di dunia teknologi informasi. share pengalaman dan tips persiapan karir.',
+            'deskripsi' => 'Talkshow dengan alumni yang telah sukses di dunia teknologi informasi. Berbagi pengalaman dan tips persiapan karir.',
             'created_by' => $admin->id,
         ]);
 
@@ -112,21 +112,21 @@ class DatabaseSeeder extends Seeder
 
         Informasi::create([
             'judul' => 'Jadwal Ujian Akhir Semester (UAS)',
-            'isi' => 'Jadwal UAS semester genap tahun ajaran 2023/2024 telah veröffentlicht. Silakan cek portal mahasiswa untuk melihat jadwal lengkap dan ruangan ujian masing-masing.',
+            'isi' => 'Jadwal UAS semester genap tahun ajaran 2023/2024 telah diterbitkan. Silakan cek portal mahasiswa untuk melihat jadwal lengkap dan ruangan ujian masing-masing.',
             'tanggal' => now()->addDays(3),
             'dibuat_oleh' => $admin->id,
         ]);
 
         Informasi::create([
-            'judul' => 'Pendaftaran Beasiswaunggulan 2024',
-            'isi' => 'Pendaftaran beasiswa keunggulan untuk semester ganjil tahun ajaran 2024/2025 telah dibuka. Persyaratan dan formulir dapat diunduh di portal akademik.',
+            'judul' => 'Pendaftaran Beasiswa Unggulan 2024',
+            'isi' => 'Pendaftaran beasiswa unggulan untuk semester ganjil tahun ajaran 2024/2025 telah dibuka. Persyaratan dan formulir dapat diunduh di portal akademik.',
             'tanggal' => now()->addDays(-5),
             'dibuat_oleh' => $admin->id,
         ]);
 
         Informasi::create([
             'judul' => 'Maintenance Server',
-            'isi' => 'Akan dilakukan maintenance server pada hari Sabtu, 25 Mei 2024 pukul 22.00 - 24.00 WITA. Sistem akan недоступен sementara waktu.',
+            'isi' => 'Akan dilakukan maintenance server pada hari Sabtu, 25 Mei 2024 pukul 22.00 - 24.00 WITA. Sistem tidak tersedia sementara waktu.',
             'tanggal' => now()->addDays(-2),
             'dibuat_oleh' => $admin->id,
         ]);
@@ -187,14 +187,14 @@ class DatabaseSeeder extends Seeder
         Notifikasi::create([
             'user_id' => $mhs2->id,
             'event_id' => null,
-            'pesan' => 'Pengumuman: Pendaftaran beasiswa keunggulan 2024 telah dibuka.',
+            'pesan' => 'Pengumuman: Pendaftaran beasiswa unggulan 2024 telah dibuka.',
             'status' => 'read',
         ]);
 
         Notifikasi::create([
             'user_id' => $mhs3->id,
             'event_id' => null,
-            'pesan' => 'Pengumuman: Jadwal UAS telah veröffentlicht. Segera cek portal mahasiswa!',
+            'pesan' => 'Pengumuman: Jadwal UAS telah diterbitkan. Segera cek portal mahasiswa!',
             'status' => 'unread',
         ]);
 

@@ -11,12 +11,32 @@ class EventController extends Controller
     /**
      * Ambil semua event (untuk mahasiswa, dosen, admin)
      * ALUR: User login -> pilih menu event -> sistem ambil data -> tampilkan daftar
+     * Mendukung search, filter tanggal, dan pagination
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $events = Event::with('creator:id,nama')
-            ->orderBy('tanggal', 'desc')
-            ->get();
+        $query = Event::with('creator:id,nama');
+
+        // Search by judul
+        if ($request->has('search')) {
+            $query->where('judul', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by date range
+        if ($request->has('tanggal_mulai')) {
+            $query->where('tanggal', '>=', $request->tanggal_mulai);
+        }
+        if ($request->has('tanggal_selesai')) {
+            $query->where('tanggal', '<=', $request->tanggal_selesai);
+        }
+
+        // Filter by lokasi
+        if ($request->has('lokasi')) {
+            $query->where('lokasi', 'like', '%' . $request->lokasi . '%');
+        }
+
+        $perPage = $request->input('per_page', 10);
+        $events = $query->orderBy('tanggal', 'desc')->paginate($perPage);
 
         return response()->json([
             'status' => true,
@@ -84,6 +104,14 @@ class EventController extends Controller
             ], 404);
         }
 
+        // Dosen hanya bisa mengupdate event miliknya sendiri
+        if ($request->user()->isDosen() && $event->created_by !== $request->user()->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Forbidden - Anda tidak memiliki akses untuk mengubah event ini',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'judul' => 'sometimes|required|string|max:255',
             'tanggal' => 'sometimes|required|date',
@@ -104,7 +132,7 @@ class EventController extends Controller
     /**
      * Hapus event (dosen & admin)
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
         $event = Event::find($id);
 
@@ -113,6 +141,14 @@ class EventController extends Controller
                 'status' => false,
                 'message' => 'Event tidak ditemukan',
             ], 404);
+        }
+
+        // Dosen hanya bisa menghapus event miliknya sendiri
+        if ($request->user()->isDosen() && $event->created_by !== $request->user()->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Forbidden - Anda tidak memiliki akses untuk menghapus event ini',
+            ], 403);
         }
 
         // Menggunakan method model

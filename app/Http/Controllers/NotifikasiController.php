@@ -14,10 +14,11 @@ class NotifikasiController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $perPage = $request->input('per_page', 10);
         $notifikasis = Notifikasi::with('event:id,judul')
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage);
 
         return response()->json([
             'status' => true,
@@ -31,11 +32,12 @@ class NotifikasiController extends Controller
      */
     public function unread(Request $request): JsonResponse
     {
+        $perPage = $request->input('per_page', 10);
         $notifikasis = Notifikasi::with('event:id,judul')
             ->where('user_id', $request->user()->id)
             ->unread()
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage);
 
         return response()->json([
             'status' => true,
@@ -81,6 +83,24 @@ class NotifikasiController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Semua notifikasi ditandai sudah dibaca',
+        ]);
+    }
+
+    /**
+     * Hitung jumlah notifikasi yang belum dibaca
+     */
+    public function unreadCount(Request $request): JsonResponse
+    {
+        $count = Notifikasi::where('user_id', $request->user()->id)
+            ->unread()
+            ->count();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Jumlah notifikasi belum dibaca',
+            'data' => [
+                'count' => $count,
+            ],
         ]);
     }
 

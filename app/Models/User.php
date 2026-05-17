@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -10,7 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, Notifiable;
 
     protected $fillable = [
         'nama',
@@ -27,32 +26,35 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
 
     /**
-     * Relasi: User membuat banyak Event
+     * Scope: Filter berdasarkan pencarian
      */
-    public function events()
+    public function scopeSearch($query, ?string $search)
     {
-        return $this->hasMany(Event::class, 'created_by');
+        if ($search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('role', 'like', "%{$search}%");
+            });
+        }
+        return $query;
     }
 
     /**
-     * Relasi: User membuat banyak Informasi
+     * Scope: Filter berdasarkan role
      */
-    public function informasis()
+    public function scopeRole($query, ?string $role)
     {
-        return $this->hasMany(Informasi::class, 'dibuat_oleh');
-    }
-
-    /**
-     * Relasi: User menerima banyak Notifikasi
-     */
-    public function notifikasis()
-    {
-        return $this->hasMany(Notifikasi::class);
+        if ($role) {
+            return $query->where('role', $role);
+        }
+        return $query;
     }
 
     /**
@@ -80,6 +82,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki banyak Event (sebagai creator)
+     */
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'created_by');
+    }
+
+    /**
+     * Relasi: User memiliki banyak Informasi
+     */
+    public function informasis()
+    {
+        return $this->hasMany(Informasi::class, 'dibuat_oleh');
+    }
+
+    /**
+     * Relasi: User memiliki banyak Notifikasi
+     */
+    public function notifikasis()
+    {
+        return $this->hasMany(Notifikasi::class);
+    }
+
+    /**
      * Register user baru
      */
     public static function register(array $data): User
@@ -87,22 +113,55 @@ class User extends Authenticatable
         return self::create([
             'nama' => $data['nama'],
             'email' => $data['email'],
-            'password' => $data['password'],
+            'password' => Hash::make($data['password']),
             'role' => $data['role'] ?? 'mahasiswa',
         ]);
     }
 
     /**
-     * Login user (validasi kredensial)
+     * Login user
      */
     public static function login(string $email, string $password): ?User
     {
         $user = self::where('email', $email)->first();
 
-        if ($user && Hash::check($password, $user->password)) {
-            return $user;
+        if (!$user || !Hash::check($password, $user->password)) {
+            return null;
         }
 
-        return null;
+        return $user;
+    }
+
+    /**
+     * Update profil user
+     */
+    public function updateProfil(array $data): bool
+    {
+        $updateData = [];
+
+        if (array_key_exists('nama', $data)) {
+            $updateData['nama'] = $data['nama'];
+        }
+        if (array_key_exists('email', $data)) {
+            $updateData['email'] = $data['email'];
+        }
+
+        if (!empty($updateData)) {
+            $this->update($updateData);
+        }
+
+        return true;
+    }
+
+    /**
+     * Update password user
+     */
+    public function updatePassword(string $password): bool
+    {
+        $this->update([
+            'password' => Hash::make($password),
+        ]);
+
+        return true;
     }
 }

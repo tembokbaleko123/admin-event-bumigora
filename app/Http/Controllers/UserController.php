@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -14,8 +13,13 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 10);
+        $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:50',
+        ]);
+
+        $perPage = $request->integer('per_page', 10);
         $users = User::select('id', 'nama', 'email', 'role', 'created_at')
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
         return response()->json([
@@ -66,6 +70,13 @@ class UserController extends Controller
             'password' => 'sometimes|required|string|min:6',
             'role' => 'sometimes|required|in:mahasiswa,dosen,admin',
         ]);
+
+        if ($user->id === $request->user()->id && isset($validated['role']) && $validated['role'] !== $user->role) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Role akun yang sedang digunakan tidak dapat diubah',
+            ], 403);
+        }
 
         // Password akan di-hash otomatis oleh 'hashed' cast di model User
         // Tidak perlu Hash::make() manual untuk menghindari double hashing

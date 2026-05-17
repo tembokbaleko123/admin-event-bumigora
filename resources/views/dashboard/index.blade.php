@@ -1,11 +1,12 @@
 @extends('layouts.admin')
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
-@section('page-subtitle', 'Overview sistem informasi akademik')
+@section('page-subtitle', $isAdmin ? 'Overview sistem informasi akademik' : 'Ringkasan event yang Anda kelola')
 
 @section('content')
 <!-- Stat Cards Row -->
 <div class="row g-4 mb-4">
+    @if($isAdmin)
     <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon bg-soft-primary"><i class="bi bi-people-fill text-primary"></i></div>
@@ -42,25 +43,65 @@
             <div class="stat-bg-icon"><i class="bi bi-megaphone-fill"></i></div>
         </div>
     </div>
+    @else
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-soft-primary"><i class="bi bi-calendar-check-fill text-primary"></i></div>
+            <div class="stat-value">{{ $totalEvents }}</div>
+            <div class="stat-label">Event Saya</div>
+            <div class="stat-change up"><i class="bi bi-person-check"></i> Dikelola</div>
+            <div class="stat-bg-icon"><i class="bi bi-calendar-check-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-soft-success"><i class="bi bi-calendar2-week-fill text-success"></i></div>
+            <div class="stat-value">{{ $upcomingEvents }}</div>
+            <div class="stat-label">Event Mendatang</div>
+            <div class="stat-change up"><i class="bi bi-arrow-up-short"></i> Aktif</div>
+            <div class="stat-bg-icon"><i class="bi bi-calendar2-week-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-soft-warning"><i class="bi bi-envelope-fill text-warning"></i></div>
+            <div class="stat-value">{{ $totalNotifikasi }}</div>
+            <div class="stat-label">Notifikasi Event</div>
+            <div class="stat-change up"><i class="bi bi-send"></i> Terkirim</div>
+            <div class="stat-bg-icon"><i class="bi bi-envelope-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-soft-info"><i class="bi bi-bell-fill text-info"></i></div>
+            <div class="stat-value">{{ $unreadNotifikasi }}</div>
+            <div class="stat-label">Belum Dibaca</div>
+            <div class="stat-change up"><i class="bi bi-bell"></i> Mahasiswa</div>
+            <div class="stat-bg-icon"><i class="bi bi-bell-fill"></i></div>
+        </div>
+    </div>
+    @endif
 </div>
 
 <!-- Charts Row -->
 <div class="row g-4 mb-4" style="animation:fadeInUp .5s var(--ease-out-expo) .1s both">
-    <div class="col-xl-8">
+    <div class="col-xl-{{ $isAdmin ? '8' : '12' }}">
         <div class="card" style="animation-delay:.12s"><div class="card-header"><i class="bi bi-graph-up me-2 text-primary"></i> Event per Bulan (6 Bulan Terakhir)</div>
         <div class="card-body"><canvas id="eventsChart" height="90"></canvas></div></div>
     </div>
+    @if($isAdmin)
     <div class="col-xl-4">
         <div class="card" style="animation-delay:.18s"><div class="card-header"><i class="bi bi-pie-chart-fill me-2 text-primary"></i> Komposisi User</div>
         <div class="card-body"><canvas id="usersChart" height="180"></canvas></div></div>
     </div>
+    @endif
 </div>
 
 <!-- Recent Events & Stats Row -->
 <div class="row g-4" style="animation:fadeInUp .5s var(--ease-out-expo) .2s both">
     <div class="col-xl-8">
         <div class="card" style="animation-delay:.22s"><div class="card-header d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-clock-history me-2 text-primary"></i> Event Terbaru</span>
+            <span><i class="bi bi-clock-history me-2 text-primary"></i> {{ $isAdmin ? 'Event Terbaru' : 'Event Saya Terbaru' }}</span>
             <a href="{{ route('admin.events.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
         </div>
         <div class="card-body p-0">
@@ -138,6 +179,7 @@ new Chart(document.getElementById('eventsChart'), {
     }
 });
 
+@if($isAdmin)
 new Chart(document.getElementById('usersChart'), {
     type: 'doughnut',
     data: {
@@ -157,5 +199,6 @@ new Chart(document.getElementById('usersChart'), {
         cutout: '70%'
     }
 });
+@endif
 </script>
 @endpush

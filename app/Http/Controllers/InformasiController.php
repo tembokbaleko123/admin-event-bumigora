@@ -15,14 +15,19 @@ class InformasiController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:255',
+            'per_page' => 'nullable|integer|min:1|max:50',
+        ]);
+
         $query = Informasi::with('creator:id,nama');
 
         // Search by judul
-        if ($request->has('search')) {
-            $query->where('judul', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where('judul', 'like', '%' . $validated['search'] . '%');
         }
 
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->integer('per_page', 10);
         $informasis = $query->orderBy('tanggal', 'desc')->paginate($perPage);
 
         return response()->json([

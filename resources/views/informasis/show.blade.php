@@ -14,6 +14,9 @@
 <div class="row">
     <div class="col-lg-8 mx-auto">
         <div class="card">
+            @if($informasi->gambar_url)
+            <img src="{{ $informasi->gambar_url }}" alt="{{ $informasi->judul }}" class="card-img-top" style="max-height:360px;object-fit:cover;">
+            @endif
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-megaphone me-2 text-primary"></i> Informasi Pendidikan</span>
                 <div class="d-flex gap-2">

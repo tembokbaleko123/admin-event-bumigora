@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root{--primary:#4f46e5}
         *{margin:0;padding:0;box-sizing:border-box}
         @keyframes bgFloat{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -148,15 +149,15 @@
         <div class="card-login">
             <div class="login-header">
                 <div class="logo-wrap">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s" alt="Universitas Bumigora" loading="lazy">
+                    <img src="{{ asset('images/ubg.png') }}" alt="Universitas Bumigora" loading="lazy">
                 </div>
                 <h1>Selamat Datang</h1>
-                <p>Universitas Bumigora — Panel Admin</p>
+                <p>Universitas Bumigora - Panel Admin</p>
             </div>
-            @if($errors->any())
+            @if(session('error') || $errors->any())
             <div class="alert-custom">
                 <i class="bi bi-exclamation-triangle-fill"></i>
-                {{ $errors->first() }}
+                {{ session('error') ?? $errors->first() }}
             </div>
             @endif
             <form method="POST" action="{{ route('admin.login.post') }}">@csrf
@@ -175,9 +176,7 @@
                     </div>
                 </div>
                 <div class="mb-4 text-end">
-                    <a href="#" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:500;" onclick="event.preventDefault();alert('Silakan hubungi admin untuk reset password.')">
-                        Lupa Password?
-                    </a>
+                    <a href="{{ route('admin.password.request') }}" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:500;">Lupa Password?</a>
                 </div>
                 <button type="submit" class="btn-login" id="btnLogin">
                     <span id="btnText">Masuk</span>

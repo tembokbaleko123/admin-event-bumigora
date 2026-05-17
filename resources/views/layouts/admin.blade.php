@@ -727,12 +727,16 @@
     </style>
 </head>
 <body>
+    @php
+        $currentUser = auth()->user();
+        $isAdminUser = $currentUser?->isAdmin();
+    @endphp
 
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
         <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
             <div class="brand-logo-wrap">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmINwWvAoYHkJZlok2LNRoekRZKf4Lm-c2ew&s" alt="UNBI Logo" loading="lazy">
+                <img src="{{ asset('images/ubg.png') }}" alt="UNBI Logo" loading="lazy">
             </div>
             <div class="brand-text">
                 UBG Education Event
@@ -756,19 +760,26 @@
                 <span>Events</span>
             </a>
 
-            <a href="{{ route('admin.informasis.index') }}" class="nav-item {{ request()->routeIs('admin.informasis.*') ? 'active' : '' }}">
-                <i class="bi bi-megaphone-fill"></i>
-                <span>Informasi</span>
-            </a>
+            @if($isAdminUser)
+                <a href="{{ route('admin.informasis.index') }}" class="nav-item {{ request()->routeIs('admin.informasis.*') ? 'active' : '' }}">
+                    <i class="bi bi-megaphone-fill"></i>
+                    <span>Informasi</span>
+                </a>
 
-            <div class="nav-label">Manajemen</div>
+                <div class="nav-label">Manajemen</div>
 
-            <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                <i class="bi bi-people-fill"></i>
-                <span>Users</span>
-            </a>
+                <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Users</span>
+                </a>
+            @endif
 
             <div class="nav-label" style="margin-top:24px">Lainnya</div>
+
+            <a href="{{ route('admin.profile') }}" class="nav-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i>
+                <span>Profil Saya</span>
+            </a>
 
             <a href="{{ route('admin.logout') }}" class="nav-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="bi bi-box-arrow-left"></i>
@@ -820,7 +831,7 @@
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow" style="border-radius:10px; border:1px solid var(--gray-200); min-width:200px;">
                         <li>
-                            <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                            <a class="dropdown-item" href="{{ route('admin.profile') }}">
                                 <i class="bi bi-person me-2"></i> Profile
                             </a>
                         </li>
@@ -850,6 +861,14 @@
                 <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                     {{ session('error') }}
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    {{ $errors->first() }}
                     <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
                 </div>
             @endif

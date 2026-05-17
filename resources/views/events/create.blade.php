@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-header"><i class="bi bi-plus-circle me-2 text-primary"></i> Form Tambah Event</div>
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.events.store') }}">
+                <form method="POST" action="{{ route('admin.events.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Judul Event <span class="text-danger">*</span></label>
@@ -23,9 +23,31 @@
                             @error('tanggal')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">Kategori</label>
+                            <select name="kategori" class="form-select @error('kategori') is-invalid @enderror">
+                                <option value="">Pilih Kategori</option>
+                                <option value="Seminar" {{ old('kategori') == 'Seminar' ? 'selected' : '' }}>Seminar</option>
+                                <option value="Workshop" {{ old('kategori') == 'Workshop' ? 'selected' : '' }}>Workshop</option>
+                                <option value="Kuliah Umum" {{ old('kategori') == 'Kuliah Umum' ? 'selected' : '' }}>Kuliah Umum</option>
+                                <option value="Praktikum" {{ old('kategori') == 'Praktikum' ? 'selected' : '' }}>Praktikum</option>
+                                <option value="UTS" {{ old('kategori') == 'UTS' ? 'selected' : '' }}>UTS</option>
+                                <option value="UAS" {{ old('kategori') == 'UAS' ? 'selected' : '' }}>UAS</option>
+                                <option value="Lainnya" {{ old('kategori') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                            </select>
+                            @error('kategori')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label class="form-label">Lokasi <span class="text-danger">*</span></label>
                             <input type="text" name="lokasi" class="form-control @error('lokasi') is-invalid @enderror" value="{{ old('lokasi') }}" required>
                             @error('lokasi')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Gambar / Poster</label>
+                            <input type="file" name="gambar" class="form-control @error('gambar') is-invalid @enderror" accept="image/*">
+                            <small class="text-muted">Format: jpeg, png, jpg, gif, svg, webp. Maks: 2MB</small>
+                            @error('gambar')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
                     <div class="mb-4">

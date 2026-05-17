@@ -17,50 +17,61 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $totalUsers = User::count();
-        $totalMahasiswa = User::where('role', 'mahasiswa')->count();
-        $totalDosen = User::where('role', 'dosen')->count();
-        $totalEvents = Event::count();
-        $totalInformasi = Informasi::count();
-        $totalNotifikasi = Notifikasi::count();
-        $unreadNotifikasi = Notifikasi::unread()->count();
+        $user = auth()->user();
+        $isAdmin = $user->isAdmin();
+        $managedEvents = Event::query();
+
+        if ($user->isDosen()) {
+            $managedEvents->where('created_by', $user->id);
+        }
+
+        $totalUsers = $isAdmin ? User::count() : 0;
+        $totalMahasiswa = $isAdmin ? User::where('role', 'mahasiswa')->count() : 0;
+        $totalDosen = $isAdmin ? User::where('role', 'dosen')->count() : 0;
+        $totalEvents = (clone $managedEvents)->count();
+        $upcomingEvents = (clone $managedEvents)
+            ->whereDate('tanggal', '>=', now()->toDateString())
+            ->count();
+        $totalInformasi = $isAdmin ? Informasi::count() : 0;
+
+        $notifikasiQuery = Notifikasi::query();
+        if ($user->isDosen()) {
+            $eventIds = (clone $managedEvents)->pluck('id');
+            $notifikasiQuery->whereIn('event_id', $eventIds);
+        }
+
+        $totalNotifikasi = (clone $notifikasiQuery)->count();
+        $unreadNotifikasi = (clone $notifikasiQuery)->unread()->count();
 
         // Event terbaru
-        $recentEvents = Event::with('creator:id,nama')
+        $recentEvents = (clone $managedEvents)
+            ->with('creator:id,nama')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
-        // User terdaftar per bulan (6 bulan terakhir)
-        $userRegistrations = User::select(
-            DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
-            DB::raw('COUNT(*) as total')
-        )
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
-
         // Event per bulan (6 bulan terakhir)
-        $eventsPerMonth = Event::select(
-            DB::raw("DATE_FORMAT(tanggal, '%Y-%m') as month"),
-            DB::raw('COUNT(*) as total')
-        )
-            ->where('created_at', '>=', now()->subMonths(6))
+        $eventsPerMonth = (clone $managedEvents)
+            ->select(
+                DB::raw("DATE_FORMAT(tanggal, '%Y-%m') as month"),
+                DB::raw('COUNT(*) as total')
+            )
+            ->where('tanggal', '>=', now()->subMonths(6)->startOfMonth()->toDateString())
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
         return view('dashboard.index', compact(
+            'isAdmin',
             'totalUsers',
             'totalMahasiswa',
             'totalDosen',
             'totalEvents',
+            'upcomingEvents',
             'totalInformasi',
             'totalNotifikasi',
             'unreadNotifikasi',
             'recentEvents',
-            'userRegistrations',
             'eventsPerMonth'
         ));
     }

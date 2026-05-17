@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-header"><i class="bi bi-plus-circle me-2 text-primary"></i> Form Tambah Informasi</div>
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.informasis.store') }}">
+                <form method="POST" action="{{ route('admin.informasis.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Judul <span class="text-danger">*</span></label>
@@ -20,6 +20,12 @@
                         <label class="form-label">Tanggal <span class="text-danger">*</span></label>
                         <input type="date" name="tanggal" class="form-control @error('tanggal') is-invalid @enderror" value="{{ old('tanggal') }}" required>
                         @error('tanggal')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Gambar</label>
+                        <input type="file" name="gambar" class="form-control @error('gambar') is-invalid @enderror" accept="image/*">
+                        <small class="text-muted">Format: jpeg, png, jpg, gif, svg, webp. Maks: 2MB</small>
+                        @error('gambar')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-4">
                         <label class="form-label">Isi Informasi <span class="text-danger">*</span></label>

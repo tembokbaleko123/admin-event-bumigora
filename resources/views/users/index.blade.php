@@ -5,7 +5,33 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header"><span><i class="bi bi-people me-2 text-primary"></i> Daftar User</span></div>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span><i class="bi bi-people me-2 text-primary"></i> Daftar User</span>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ route('admin.users.index') }}" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama/email..." value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="role" class="form-select">
+                    <option value="">Semua Role</option>
+                    <option value="mahasiswa" {{ request('role') == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                    <option value="dosen" {{ request('role') == 'dosen' ? 'selected' : '' }}>Dosen</option>
+                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i> Cari</button>
+                @if(request()->anyFilled(['search', 'role']))
+                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+                @endif
+            </div>
+        </form>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table">

@@ -5,15 +5,25 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::select('id', 'nama', 'email', 'role', 'created_at')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'role' => 'nullable|in:mahasiswa,dosen,admin',
+        ]);
+
+        $query = User::select('id', 'nama', 'email', 'role', 'created_at');
+
+        // Search using scope
+        $query->search($request->search);
+
+        // Filter by role using scope
+        $query->role($request->role);
+
+        $users = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         return view('users.index', compact('users'));
     }
 
@@ -41,10 +51,15 @@ class UserController extends Controller
             'role' => 'sometimes|required|in:mahasiswa,dosen,admin',
         ]);
 
+        if ($user->id === auth()->id() && isset($validated['role']) && $validated['role'] !== $user->role) {
+            return back()
+                ->withInput()
+                ->with('error', 'Role akun yang sedang digunakan tidak dapat diubah.');
+        }
+
         if (empty($validated['password'])) {
             unset($validated['password']);
         }
-        // Password akan di-hash otomatis oleh 'hashed' cast di model User
 
         $user->update($validated);
 

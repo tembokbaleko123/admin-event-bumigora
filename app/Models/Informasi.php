@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Informasi extends Model
 {
@@ -12,6 +13,7 @@ class Informasi extends Model
     protected $fillable = [
         'judul',
         'isi',
+        'gambar',
         'tanggal',
         'dibuat_oleh',
     ];
@@ -32,16 +34,62 @@ class Informasi extends Model
     }
 
     /**
+     * Scope: Filter berdasarkan pencarian
+     */
+    public function scopeSearch($query, ?string $search)
+    {
+        if ($search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                  ->orWhere('isi', 'like', "%{$search}%");
+            });
+        }
+        return $query;
+    }
+
+    /**
+     * Upload gambar informasi
+     */
+    public static function uploadGambar($file): string
+    {
+        return $file->store('informasis', 'public');
+    }
+
+    /**
+     * Hapus gambar lama jika ada
+     */
+    public function hapusGambar(): void
+    {
+        if ($this->gambar && Storage::disk('public')->exists($this->gambar)) {
+            Storage::disk('public')->delete($this->gambar);
+        }
+    }
+
+    /**
+     * Get URL gambar
+     */
+    public function getGambarUrlAttribute(): ?string
+    {
+        return $this->gambar ? Storage::url($this->gambar) : null;
+    }
+
+    /**
      * Tambah informasi baru
      */
     public static function tambahInformasi(array $data, User $creator): Informasi
     {
-        return self::create([
+        $infoData = [
             'judul' => $data['judul'],
             'isi' => $data['isi'],
             'tanggal' => $data['tanggal'],
             'dibuat_oleh' => $creator->id,
-        ]);
+        ];
+
+        if (isset($data['gambar']) && $data['gambar']) {
+            $infoData['gambar'] = self::uploadGambar($data['gambar']);
+        }
+
+        return self::create($infoData);
     }
 
     /**
@@ -61,16 +109,29 @@ class Informasi extends Model
             $updateData['tanggal'] = $data['tanggal'];
         }
 
+        // Handle gambar upload
+        if (isset($data['gambar']) && $data['gambar']) {
+            $this->hapusGambar();
+            $updateData['gambar'] = self::uploadGambar($data['gambar']);
+        }
+
+        // Handle hapus gambar
+        if (array_key_exists('hapus_gambar', $data) && $data['hapus_gambar']) {
+            $this->hapusGambar();
+            $updateData['gambar'] = null;
+        }
+
         $this->update($updateData);
 
         return true;
     }
 
     /**
-     * Hapus informasi
+     * Hapus informasi termasuk gambar
      */
     public function hapusInformasi(): bool
     {
+        $this->hapusGambar();
         $this->delete();
         return true;
     }

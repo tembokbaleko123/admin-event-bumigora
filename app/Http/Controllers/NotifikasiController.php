@@ -14,7 +14,11 @@ class NotifikasiController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 10);
+        $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:50',
+        ]);
+
+        $perPage = $request->integer('per_page', 10);
         $notifikasis = Notifikasi::with('event:id,judul')
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
@@ -32,7 +36,11 @@ class NotifikasiController extends Controller
      */
     public function unread(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 10);
+        $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:50',
+        ]);
+
+        $perPage = $request->integer('per_page', 10);
         $notifikasis = Notifikasi::with('event:id,judul')
             ->where('user_id', $request->user()->id)
             ->unread()

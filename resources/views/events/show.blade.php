@@ -1,61 +1,84 @@
 @extends('layouts.admin')
-@section('title', 'Detail Event')
-@section('page-title', 'Detail Event')
-@section('page-subtitle', $event->judul)
-@section('breadcrumb')
-<a href="{{ route('admin.dashboard') }}">Dashboard</a>
-<span class="separator">›</span>
-<a href="{{ route('admin.events.index') }}">Events</a>
-<span class="separator">›</span>
-<span>{{ Str::limit($event->judul, 30) }}</span>
-@endsection
+@section('title', $event->judul)
+@section('page-title', $event->judul)
+@section('page-subtitle', 'Detail event akademik')
 
 @section('content')
-<div class="row">
-    <div class="col-lg-8 mx-auto">
+<div class="row g-4">
+    <div class="col-lg-8">
         <div class="card">
+            @if($event->gambar_url)
+            <img src="{{ $event->gambar_url }}" alt="{{ $event->judul }}" class="card-img-top" style="max-height:360px;object-fit:cover;">
+            @endif
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-info-circle me-2 text-primary"></i> Informasi Event</span>
+                @if($canManageEvent)
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.events.edit', $event->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Edit</a>
-                    <a href="{{ route('admin.events.index') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('admin.events.edit', $event->id) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                    <form action="{{ route('admin.events.destroy', $event->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus event ini?')">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                    </form>
                 </div>
+                @endif
             </div>
             <div class="card-body">
-                <div class="mb-4">
-                    <h5 class="text-muted mb-1" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">JUDUL</h5>
-                    <h4 class="fw-bold" style="color:var(--gray-900)">{{ $event->judul }}</h4>
-                </div>
-                <div class="row mb-4 g-3">
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3" style="background:var(--gray-50)">
-                            <h5 class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">TANGGAL</h5>
-                            <p class="fw-semibold mb-0"><i class="bi bi-calendar me-1 text-primary"></i> {{ $event->tanggal->format('d F Y') }}</p>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:20px;color:#4f46e5;"><i class="bi bi-calendar-event"></i></div>
+                            <div>
+                                <small class="text-muted">Tanggal</small>
+                                <div class="fw-semibold">{{ $event->tanggal->format('d M Y') }}</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3" style="background:var(--gray-50)">
-                            <h5 class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">LOKASI</h5>
-                            <p class="fw-semibold mb-0"><i class="bi bi-geo-alt me-1 text-primary"></i> {{ $event->lokasi }}</p>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:20px;color:#4f46e5;"><i class="bi bi-geo-alt"></i></div>
+                            <div>
+                                <small class="text-muted">Lokasi</small>
+                                <div class="fw-semibold">{{ $event->lokasi }}</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3" style="background:var(--gray-50)">
-                            <h5 class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">DIBUAT OLEH</h5>
-                            <p class="fw-semibold mb-0"><i class="bi bi-person me-1 text-primary"></i> {{ $event->creator->nama ?? '-' }}</p>
+                    @if($event->kategori)
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:20px;color:#4f46e5;"><i class="bi bi-tag"></i></div>
+                            <div>
+                                <small class="text-muted">Kategori</small>
+                                <div><span class="badge" style="background:#eef2ff;color:#4f46e5;font-weight:600;">{{ $event->kategori }}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:20px;color:#4f46e5;"><i class="bi bi-person"></i></div>
+                            <div>
+                                <small class="text-muted">Dibuat Oleh</small>
+                                <div class="fw-semibold">{{ $event->creator->nama ?? '-' }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 @if($event->deskripsi)
-                <div class="mt-4">
-                    <h5 class="text-muted mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">DESKRIPSI</h5>
-                    <div class="p-4 rounded-3" style="background:var(--gray-50);white-space:pre-wrap;line-height:1.7">{{ $event->deskripsi }}</div>
-                </div>
+                <hr>
+                <h6 class="fw-bold mb-3">Deskripsi</h6>
+                <p class="text-muted">{{ $event->deskripsi }}</p>
                 @endif
             </div>
-            <div class="card-footer text-muted d-flex justify-content-between align-items-center">
-                <small><i class="bi bi-clock me-1"></i> Dibuat: {{ $event->created_at->format('d M Y H:i') }}</small>
-                <small><i class="bi bi-clock-history me-1"></i> Diupdate: {{ $event->updated_at->format('d M Y H:i') }}</small>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-arrow-left me-2 text-primary"></i> Navigasi</div>
+            <div class="card-body">
+                <a href="{{ route('admin.events.index') }}" class="btn btn-outline-primary w-100 mb-2"><i class="bi bi-list me-1"></i> Kembali ke Daftar</a>
+                @if($canManageEvent)
+                <a href="{{ route('admin.events.edit', $event->id) }}" class="btn btn-warning w-100 mb-2"><i class="bi bi-pencil me-1"></i> Edit Event</a>
+                @endif
             </div>
         </div>
     </div>

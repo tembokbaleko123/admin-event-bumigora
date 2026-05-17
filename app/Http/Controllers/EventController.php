@@ -15,27 +15,35 @@ class EventController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:255',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'lokasi' => 'nullable|string|max:255',
+            'per_page' => 'nullable|integer|min:1|max:50',
+        ]);
+
         $query = Event::with('creator:id,nama');
 
         // Search by judul
-        if ($request->has('search')) {
-            $query->where('judul', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where('judul', 'like', '%' . $validated['search'] . '%');
         }
 
         // Filter by date range
-        if ($request->has('tanggal_mulai')) {
-            $query->where('tanggal', '>=', $request->tanggal_mulai);
+        if ($request->filled('tanggal_mulai')) {
+            $query->where('tanggal', '>=', $validated['tanggal_mulai']);
         }
-        if ($request->has('tanggal_selesai')) {
-            $query->where('tanggal', '<=', $request->tanggal_selesai);
+        if ($request->filled('tanggal_selesai')) {
+            $query->where('tanggal', '<=', $validated['tanggal_selesai']);
         }
 
         // Filter by lokasi
-        if ($request->has('lokasi')) {
-            $query->where('lokasi', 'like', '%' . $request->lokasi . '%');
+        if ($request->filled('lokasi')) {
+            $query->where('lokasi', 'like', '%' . $validated['lokasi'] . '%');
         }
 
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->integer('per_page', 10);
         $events = $query->orderBy('tanggal', 'desc')->paginate($perPage);
 
         return response()->json([

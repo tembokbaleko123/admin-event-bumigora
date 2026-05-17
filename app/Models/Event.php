@@ -10,6 +10,8 @@ class Event extends Model
 {
     use HasFactory;
 
+    protected $appends = ['gambar_url'];
+
     protected $fillable = [
         'judul',
         'tanggal',
@@ -83,7 +85,7 @@ class Event extends Model
      */
     public function hapusGambar(): void
     {
-        if ($this->gambar && Storage::disk('public')->exists($this->gambar)) {
+        if ($this->gambar) {
             Storage::disk('public')->delete($this->gambar);
         }
     }

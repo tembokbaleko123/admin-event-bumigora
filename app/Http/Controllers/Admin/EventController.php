@@ -20,7 +20,7 @@ class EventController extends Controller
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
         ]);
 
-        $query = Event::with('creator:id,nama');
+        $query = Event::with('creator:id,nama,role');
 
         // Search using scope
         $query->search($request->search);
@@ -39,7 +39,12 @@ class EventController extends Controller
         $events = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         // Daftar kategori untuk dropdown filter
-        $kategoriList = Event::select('kategori')->distinct()->whereNotNull('kategori')->pluck('kategori');
+        $kategoriList = Event::query()
+            ->whereNotNull('kategori')
+            ->where('kategori', '!=', '')
+            ->distinct()
+            ->orderBy('kategori')
+            ->pluck('kategori');
 
         return view('events.index', compact('events', 'kategoriList'));
     }
@@ -77,7 +82,7 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        $event = Event::with('creator:id,nama')->findOrFail($id);
+        $event = Event::with('creator:id,nama,role')->findOrFail($id);
         $canManageEvent = $this->canManage($event, request());
 
         return view('events.show', compact('event', 'canManageEvent'));

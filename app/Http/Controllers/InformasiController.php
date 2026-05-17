@@ -20,12 +20,7 @@ class InformasiController extends Controller
             'per_page' => 'nullable|integer|min:1|max:50',
         ]);
 
-        $query = Informasi::with('creator:id,nama');
-
-        // Search by judul
-        if ($request->filled('search')) {
-            $query->where('judul', 'like', '%' . $validated['search'] . '%');
-        }
+        $query = Informasi::with('creator:id,nama')->search($validated['search'] ?? null);
 
         $perPage = $request->integer('per_page', 10);
         $informasis = $query->orderBy('tanggal', 'desc')->paginate($perPage);
@@ -67,6 +62,7 @@ class InformasiController extends Controller
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
             'tanggal' => 'required|date',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
         // Menggunakan method model Informasi::tambahInformasi()
@@ -97,6 +93,8 @@ class InformasiController extends Controller
             'judul' => 'sometimes|required|string|max:255',
             'isi' => 'sometimes|required|string',
             'tanggal' => 'sometimes|required|date',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'hapus_gambar' => 'nullable|boolean',
         ]);
 
         // Menggunakan method model

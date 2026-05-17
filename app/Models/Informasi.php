@@ -10,6 +10,8 @@ class Informasi extends Model
 {
     use HasFactory;
 
+    protected $appends = ['gambar_url'];
+
     protected $fillable = [
         'judul',
         'isi',
@@ -60,7 +62,7 @@ class Informasi extends Model
      */
     public function hapusGambar(): void
     {
-        if ($this->gambar && Storage::disk('public')->exists($this->gambar)) {
+        if ($this->gambar) {
             Storage::disk('public')->delete($this->gambar);
         }
     }

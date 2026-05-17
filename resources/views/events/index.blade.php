@@ -24,13 +24,9 @@
             <div class="col-md-2">
                 <select name="kategori" class="form-select">
                     <option value="">Semua Kategori</option>
-                    <option value="Seminar" {{ request('kategori') == 'Seminar' ? 'selected' : '' }}>Seminar</option>
-                    <option value="Workshop" {{ request('kategori') == 'Workshop' ? 'selected' : '' }}>Workshop</option>
-                    <option value="Kuliah Umum" {{ request('kategori') == 'Kuliah Umum' ? 'selected' : '' }}>Kuliah Umum</option>
-                    <option value="Praktikum" {{ request('kategori') == 'Praktikum' ? 'selected' : '' }}>Praktikum</option>
-                    <option value="UTS" {{ request('kategori') == 'UTS' ? 'selected' : '' }}>UTS</option>
-                    <option value="UAS" {{ request('kategori') == 'UAS' ? 'selected' : '' }}>UAS</option>
-                    <option value="Lainnya" {{ request('kategori') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                    @foreach($kategoriList as $kategori)
+                    <option value="{{ $kategori }}" {{ request('kategori') == $kategori ? 'selected' : '' }}>{{ $kategori }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-md-2">
@@ -57,7 +53,7 @@
                         $canManageEvent = auth()->user()->isAdmin() || $event->created_by === auth()->id();
                     @endphp
                     <tr>
-                        <td class="text-muted">{{ $loop->iteration }}</td>
+                        <td class="text-muted">{{ ($events->currentPage() - 1) * $events->perPage() + $loop->iteration }}</td>
                         <td class="fw-semibold">
                             @if($event->gambar_url)
                             <img src="{{ $event->gambar_url }}" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:cover;margin-right:8px;">
@@ -86,7 +82,12 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Belum ada event</td></tr>
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            {{ request()->anyFilled(['search', 'kategori', 'tanggal_mulai', 'tanggal_selesai']) ? 'Tidak ada event yang sesuai filter' : 'Belum ada event' }}
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>

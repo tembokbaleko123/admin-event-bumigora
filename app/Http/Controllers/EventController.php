@@ -20,15 +20,11 @@ class EventController extends Controller
             'tanggal_mulai' => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'lokasi' => 'nullable|string|max:255',
+            'kategori' => 'nullable|string|max:100',
             'per_page' => 'nullable|integer|min:1|max:50',
         ]);
 
-        $query = Event::with('creator:id,nama');
-
-        // Search by judul
-        if ($request->filled('search')) {
-            $query->where('judul', 'like', '%' . $validated['search'] . '%');
-        }
+        $query = Event::with('creator:id,nama')->search($validated['search'] ?? null);
 
         // Filter by date range
         if ($request->filled('tanggal_mulai')) {
@@ -41,6 +37,11 @@ class EventController extends Controller
         // Filter by lokasi
         if ($request->filled('lokasi')) {
             $query->where('lokasi', 'like', '%' . $validated['lokasi'] . '%');
+        }
+
+        // Filter by kategori
+        if ($request->filled('kategori')) {
+            $query->kategori($validated['kategori']);
         }
 
         $perPage = $request->integer('per_page', 10);
@@ -86,6 +87,8 @@ class EventController extends Controller
             'tanggal' => 'required|date',
             'lokasi' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
+            'kategori' => 'nullable|string|max:100',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
         // Menggunakan method model Event::tambahEvent()
@@ -125,6 +128,9 @@ class EventController extends Controller
             'tanggal' => 'sometimes|required|date',
             'lokasi' => 'sometimes|required|string|max:255',
             'deskripsi' => 'nullable|string',
+            'kategori' => 'nullable|string|max:100',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'hapus_gambar' => 'nullable|boolean',
         ]);
 
         // Menggunakan method model

@@ -85,11 +85,11 @@
 
             <div class="mb-4">
                 <label class="form-label">Password Baru</label>
-                <input type="password" name="password" class="form-control" placeholder="Min. 6 karakter" required minlength="6">
+                <input type="password" name="password" class="form-control" placeholder="Min. 8 karakter" required minlength="8">
             </div>
             <div class="mb-4">
                 <label class="form-label">Konfirmasi Password</label>
-                <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password baru" required minlength="6">
+                <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password baru" required minlength="8">
             </div>
             <button type="submit" class="btn-primary">Reset Password</button>
         </form>

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->string('judul');
-            $table->date('tanggal');
+            $table->dateTime('tanggal');
             $table->string('lokasi');
             $table->text('deskripsi')->nullable();
             $table->unsignedBigInteger('created_by');

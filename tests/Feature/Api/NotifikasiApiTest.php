@@ -44,17 +44,17 @@ class NotifikasiApiTest extends TestCase
 
         Sanctum::actingAs($mahasiswa);
 
-        $countResponse = $this->getJson('/api/notifikasis/unread/count');
+        $countResponse = $this->getJson('/api/v1/notifikasis/unread/count');
         $countResponse->assertOk()
             ->assertJsonPath('status', true)
             ->assertJsonPath('data.count', 2);
 
-        $unreadResponse = $this->getJson('/api/notifikasis/unread');
+        $unreadResponse = $this->getJson('/api/v1/notifikasis/unread');
         $unreadResponse->assertOk()
             ->assertJsonPath('status', true)
-            ->assertJsonCount(2, 'data.data');
+            ->assertJsonCount(2, 'data');
 
-        $markAllResponse = $this->putJson('/api/notifikasis/read-all');
+        $markAllResponse = $this->putJson('/api/v1/notifikasis/read-all');
         $markAllResponse->assertOk()
             ->assertJsonPath('status', true);
 

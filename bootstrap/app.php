@@ -7,7 +7,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -18,12 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'cache.headers' => \App\Http\Middleware\CacheHeadersMiddleware::class,
+            'token.expiry' => \App\Http\Middleware\CheckTokenExpiry::class,
         ]);
 
-        // CORS untuk API
-        $middleware->api(prepend: [
-            \App\Http\Middleware\CorsMiddleware::class,
-        ]);
+        // CORS handled by Laravel's built-in CORS middleware via config/cors.php
+        // $middleware->prepend(
+        //     \App\Http\Middleware\CorsMiddleware::class,
+        // );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (ValidationException $exception, Request $request) {
@@ -55,6 +58,28 @@ return Application::configure(basePath: dirname(__DIR__))
                     'status' => false,
                     'message' => 'Resource tidak ditemukan',
                 ], 404);
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (ModelNotFoundException $exception, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan',
+                ], 404);
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (MethodNotAllowedHttpException $exception, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Method tidak diizinkan',
+                ], 405);
             }
 
             return null;

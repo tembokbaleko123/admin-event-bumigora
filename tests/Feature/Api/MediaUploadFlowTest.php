@@ -21,7 +21,7 @@ class MediaUploadFlowTest extends TestCase
         $dosen = User::factory()->dosen()->create();
         Sanctum::actingAs($dosen);
 
-        $createResponse = $this->post('/api/events', [
+        $createResponse = $this->post('/api/v1/events', [
             'judul' => 'Event Gambar',
             'tanggal' => now()->addDay()->toDateString(),
             'lokasi' => 'Lab A',
@@ -59,7 +59,7 @@ class MediaUploadFlowTest extends TestCase
             'created_by' => $dosen->id,
         ]);
 
-        $removeResponse = $this->put("/api/events/{$event->id}", [
+        $removeResponse = $this->put("/api/v1/events/{$event->id}", [
             'hapus_gambar' => 1,
         ], [
             'Accept' => 'application/json',
@@ -76,13 +76,40 @@ class MediaUploadFlowTest extends TestCase
         ]);
     }
 
+    public function test_event_api_can_update_image_with_method_spoofed_multipart_request(): void
+    {
+        Storage::persistentFake('public');
+        $dosen = User::factory()->dosen()->create();
+        Sanctum::actingAs($dosen);
+
+        $event = Event::factory()->create([
+            'created_by' => $dosen->id,
+            'tanggal' => now()->addDays(2),
+        ]);
+
+        $response = $this->post("/api/v1/events/{$event->id}", [
+            '_method' => 'PUT',
+            'gambar' => $this->fakePng('updated-event.png'),
+        ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('status', true)
+            ->assertJsonPath('data.gambar_url', fn ($url) => is_string($url) && $url !== '');
+
+        $event->refresh();
+        $this->assertNotNull($event->gambar);
+        Storage::disk('public')->assertExists($event->gambar);
+    }
+
     public function test_informasi_api_can_upload_image(): void
     {
         Storage::persistentFake('public');
         $admin = User::factory()->admin()->create();
         Sanctum::actingAs($admin);
 
-        $createResponse = $this->post('/api/informasis', [
+        $createResponse = $this->post('/api/v1/informasis', [
             'judul' => 'Info Gambar',
             'isi' => 'Isi informasi',
             'tanggal' => now()->toDateString(),
@@ -118,7 +145,7 @@ class MediaUploadFlowTest extends TestCase
             'dibuat_oleh' => $admin->id,
         ]);
 
-        $removeResponse = $this->put("/api/informasis/{$informasi->id}", [
+        $removeResponse = $this->put("/api/v1/informasis/{$informasi->id}", [
             'hapus_gambar' => 1,
         ], [
             'Accept' => 'application/json',

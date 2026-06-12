@@ -67,14 +67,14 @@
                             <span class="text-muted">-</span>
                             @endif
                         </td>
-                        <td>{{ $event->tanggal->format('d M Y') }}</td>
+                        <td>{{ $event->tanggal->format('d M Y H:i') }}</td>
                         <td>{{ $event->lokasi }}</td>
                         <td><span class="badge-role {{ $event->creator->role ?? 'admin' }}">{{ $event->creator->nama ?? '-' }}</span></td>
                         <td class="text-end">
                             <a href="{{ route('admin.events.show', $event->id) }}" class="btn btn-sm btn-outline-primary" title="Detail"><i class="bi bi-eye"></i></a>
                             @if($canManageEvent)
                                 <a href="{{ route('admin.events.edit', $event->id) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="bi bi-pencil"></i></a>
-                                <form action="{{ route('admin.events.destroy', $event->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus event ini?')">
+                                <form action="{{ route('admin.events.destroy', $event->id) }}" method="POST" class="d-inline" data-confirm="Yakin ingin menghapus event ini?">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus"><i class="bi bi-trash"></i></button>
                                 </form>

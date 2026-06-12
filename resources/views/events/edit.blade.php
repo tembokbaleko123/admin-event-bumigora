@@ -18,21 +18,19 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Tanggal <span class="text-danger">*</span></label>
-                            <input type="date" name="tanggal" class="form-control @error('tanggal') is-invalid @enderror" value="{{ old('tanggal', $event->tanggal->format('Y-m-d')) }}" required>
+                            <label class="form-label">Tanggal & Waktu <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="tanggal" class="form-control @error('tanggal') is-invalid @enderror" value="{{ old('tanggal', $event->tanggal->format('Y-m-d\\TH:i')) }}" required>
                             @error('tanggal')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kategori</label>
                             <select name="kategori" class="form-select @error('kategori') is-invalid @enderror">
                                 <option value="">Pilih Kategori</option>
-                                <option value="Seminar" {{ old('kategori', $event->kategori) == 'Seminar' ? 'selected' : '' }}>Seminar</option>
-                                <option value="Workshop" {{ old('kategori', $event->kategori) == 'Workshop' ? 'selected' : '' }}>Workshop</option>
-                                <option value="Kuliah Umum" {{ old('kategori', $event->kategori) == 'Kuliah Umum' ? 'selected' : '' }}>Kuliah Umum</option>
-                                <option value="Praktikum" {{ old('kategori', $event->kategori) == 'Praktikum' ? 'selected' : '' }}>Praktikum</option>
-                                <option value="UTS" {{ old('kategori', $event->kategori) == 'UTS' ? 'selected' : '' }}>UTS</option>
-                                <option value="UAS" {{ old('kategori', $event->kategori) == 'UAS' ? 'selected' : '' }}>UAS</option>
-                                <option value="Lainnya" {{ old('kategori', $event->kategori) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                <option value="KULIAH" {{ old('kategori', $event->kategori) == 'KULIAH' ? 'selected' : '' }}>Kuliah</option>
+                                <option value="WORKSHOP" {{ old('kategori', $event->kategori) == 'WORKSHOP' ? 'selected' : '' }}>Workshop</option>
+                                <option value="SEMINAR" {{ old('kategori', $event->kategori) == 'SEMINAR' ? 'selected' : '' }}>Seminar</option>
+                                <option value="MEETING" {{ old('kategori', $event->kategori) == 'MEETING' ? 'selected' : '' }}>Meeting</option>
+                                <option value="UKM" {{ old('kategori', $event->kategori) == 'UKM' ? 'selected' : '' }}>UKM</option>
                             </select>
                             @error('kategori')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>

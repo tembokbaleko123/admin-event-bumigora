@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class Informasi extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $appends = ['gambar_url'];
 
@@ -91,7 +94,17 @@ class Informasi extends Model
             $infoData['gambar'] = self::uploadGambar($data['gambar']);
         }
 
-        return self::create($infoData);
+        return DB::transaction(function () use ($infoData) {
+            $informasi = self::create($infoData);
+
+            Notifikasi::kirimNotifikasiKeRole(
+                UserRole::Mahasiswa->value,
+                'Informasi baru: ' . $informasi->judul,
+                null
+            );
+
+            return $informasi;
+        });
     }
 
     /**
@@ -123,7 +136,15 @@ class Informasi extends Model
             $updateData['gambar'] = null;
         }
 
-        $this->update($updateData);
+        DB::transaction(function () use ($updateData) {
+            $this->update($updateData);
+
+            Notifikasi::kirimNotifikasiKeRole(
+                UserRole::Mahasiswa->value,
+                'Informasi diperbarui: ' . $this->judul,
+                null
+            );
+        });
 
         return true;
     }
@@ -133,8 +154,19 @@ class Informasi extends Model
      */
     public function hapusInformasi(): bool
     {
-        $this->hapusGambar();
-        $this->delete();
+        $judul = $this->judul;
+
+        DB::transaction(function () use ($judul) {
+            Notifikasi::kirimNotifikasiKeRole(
+                UserRole::Mahasiswa->value,
+                'Informasi dihapus: ' . $judul,
+                null
+            );
+
+            $this->hapusGambar();
+            $this->delete();
+        });
+
         return true;
     }
 }

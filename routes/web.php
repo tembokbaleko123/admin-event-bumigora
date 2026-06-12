@@ -21,15 +21,15 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('home');
 // ==================== GUEST ROUTES ====================
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:5,1');
 
     // Forgot Password
     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:3,1');
 
     // Reset Password
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1');
 });
 
 // ==================== AUTHENTICATED ROUTES ====================
@@ -73,11 +73,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,dosen'])
         ]);
 
         // Users
-        Route::resource('users', UserController::class)->only([
-            'index', 'show', 'edit', 'update', 'destroy'
-        ])->names([
+        Route::resource('users', UserController::class)->except(['show', 'create', 'store'])->names([
             'index' => 'users.index',
-            'show' => 'users.show',
             'edit' => 'users.edit',
             'update' => 'users.update',
             'destroy' => 'users.destroy',

@@ -14,7 +14,7 @@ class InformasiController extends Controller
             'search' => 'nullable|string|max:255',
         ]);
 
-        $query = Informasi::with('creator:id,nama');
+        $query = Informasi::with('creator:id,nama,role');
 
         // Search using scope
         $query->search($request->search);
@@ -34,7 +34,7 @@ class InformasiController extends Controller
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
             'tanggal' => 'required|date',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $informasi = Informasi::tambahInformasi($validated, $request->user());
@@ -63,7 +63,7 @@ class InformasiController extends Controller
             'judul' => 'sometimes|required|string|max:255',
             'isi' => 'sometimes|required|string',
             'tanggal' => 'sometimes|required|date',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'hapus_gambar' => 'nullable|boolean',
         ]);
 

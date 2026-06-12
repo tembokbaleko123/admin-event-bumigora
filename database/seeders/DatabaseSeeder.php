@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Informasi;
@@ -12,6 +13,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            echo "Cannot seed in production!\n";
+            return;
+        }
+
         // ==================== CREATE SAMPLE USERS ====================
 
         // Admin
@@ -19,7 +25,7 @@ class DatabaseSeeder extends Seeder
             'nama' => 'Budi Santoso',
             'email' => 'admin@example.com',
             'password' => 'password',
-            'role' => 'admin',
+            'role' => UserRole::Admin->value,
         ]);
 
         // Dosen
@@ -27,14 +33,14 @@ class DatabaseSeeder extends Seeder
             'nama' => 'Dr. Ahmad Wijaya',
             'email' => 'dosen@example.com',
             'password' => 'password',
-            'role' => 'dosen',
+            'role' => UserRole::Dosen->value,
         ]);
 
         $dosen2 = User::create([
             'nama' => 'Siti Rahayu, M.Kom',
             'email' => 'dosen2@example.com',
             'password' => 'password',
-            'role' => 'dosen',
+            'role' => UserRole::Dosen->value,
         ]);
 
         // Mahasiswa
@@ -42,21 +48,21 @@ class DatabaseSeeder extends Seeder
             'nama' => 'Rizky Pratama',
             'email' => 'mahasiswa@example.com',
             'password' => 'password',
-            'role' => 'mahasiswa',
+            'role' => UserRole::Mahasiswa->value,
         ]);
 
         $mhs2 = User::create([
             'nama' => 'Anisa Putri',
             'email' => 'mahasiswa2@example.com',
             'password' => 'password',
-            'role' => 'mahasiswa',
+            'role' => UserRole::Mahasiswa->value,
         ]);
 
         $mhs3 = User::create([
             'nama' => 'Dewi Lestari',
             'email' => 'mahasiswa3@example.com',
             'password' => 'password',
-            'role' => 'mahasiswa',
+            'role' => UserRole::Mahasiswa->value,
         ]);
 
         // ==================== CREATE SAMPLE EVENTS ====================
@@ -135,7 +141,7 @@ class DatabaseSeeder extends Seeder
             'judul' => 'Workshop Pemrograman Python untuk Pemula',
             'isi' => 'Workshop pemrograman Python akan diadakan untuk mahasiswa semester 1 dan 2. Pendaftaran dibuka hingga tanggal 30 Mei 2024.',
             'tanggal' => now()->addDays(-7),
-            'dibuat_oleh' => $dosen1->id,
+            'dibuat_oleh' => $admin->id,
         ]);
 
         // ==================== CREATE SAMPLE NOTIFIKASI ====================
@@ -199,10 +205,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // ==================== SEEDER SUMMARY ====================
-        $this->command->info('Database seeded successfully!');
-        $this->command->info('Sample Users:');
-        $this->command->info('  Admin: admin@example.com / password');
-        $this->command->info('  Dosen: dosen@example.com / password');
-        $this->command->info('  Mahasiswa: mahasiswa@example.com / password');
+        echo "\nDatabase seeded successfully!\n";
+        echo "Sample Users:\n";
+        echo "  Admin: admin@example.com / password\n";
+        echo "  Dosen: dosen@example.com / password\n";
+        echo "  Mahasiswa: mahasiswa@example.com / password\n";
     }
 }

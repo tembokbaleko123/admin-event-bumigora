@@ -32,7 +32,7 @@
                 <tbody>
                     @forelse($informasis as $info)
                     <tr>
-                        <td class="text-muted">{{ $loop->iteration }}</td>
+                        <td class="text-muted">{{ ($informasis->currentPage() - 1) * $informasis->perPage() + $loop->iteration }}</td>
                         <td class="fw-semibold">
                             @if($info->gambar_url)
                             <img src="{{ $info->gambar_url }}" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:cover;margin-right:8px;">
@@ -44,7 +44,7 @@
                         <td class="text-end">
                             <a href="{{ route('admin.informasis.show', $info->id) }}" class="btn btn-sm btn-outline-primary" title="Detail"><i class="bi bi-eye"></i></a>
                             <a href="{{ route('admin.informasis.edit', $info->id) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="bi bi-pencil"></i></a>
-                            <form action="{{ route('admin.informasis.destroy', $info->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus informasi ini?')">
+                            <form action="{{ route('admin.informasis.destroy', $info->id) }}" method="POST" class="d-inline" data-confirm="Yakin ingin menghapus informasi ini?">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus"><i class="bi bi-trash"></i></button>
                             </form>

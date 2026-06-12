@@ -36,18 +36,18 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::withCount(['events', 'informasis'])->findOrFail($id);
         return view('users.edit', compact('user'));
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $user = User::withCount(['events', 'informasis'])->findOrFail($id);
 
         $validated = $request->validate([
             'nama' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6',
+            'password' => 'nullable|string|min:8',
             'role' => 'sometimes|required|in:mahasiswa,dosen,admin',
         ]);
 
@@ -76,7 +76,13 @@ class UserController extends Controller
                 ->with('error', 'Tidak dapat menghapus akun sendiri!');
         }
 
+        if ($user->events_count > 0 || $user->informasis_count > 0) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'User masih memiliki event atau informasi. Pindahkan atau hapus konten terlebih dahulu.');
+        }
+
         $nama = $user->nama;
+        $user->tokens()->delete();
         $user->delete();
 
         return redirect()->route('admin.users.index')

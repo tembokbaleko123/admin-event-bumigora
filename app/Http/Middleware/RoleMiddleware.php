@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
@@ -36,15 +35,6 @@ class RoleMiddleware
 
         if (!in_array($user->role, $roles)) {
             if (!$expectsJson) {
-                if ($request->routeIs('admin.dashboard')) {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
-
-                    return redirect()->route('admin.login')
-                        ->with('error', 'Akun Anda tidak memiliki akses ke panel admin.');
-                }
-
                 return redirect()->route('admin.dashboard')
                     ->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
             }

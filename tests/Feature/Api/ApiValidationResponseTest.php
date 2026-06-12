@@ -16,7 +16,7 @@ class ApiValidationResponseTest extends TestCase
         $dosen = User::factory()->dosen()->create();
         Sanctum::actingAs($dosen);
 
-        $response = $this->postJson('/api/events', []);
+        $response = $this->postJson('/api/v1/events', []);
 
         $response->assertStatus(422)
             ->assertJson([

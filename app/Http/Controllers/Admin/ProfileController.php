@@ -29,7 +29,7 @@ class ProfileController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 
-        $user->updateProfil($validated);
+        $user->update($validated);
 
         return redirect()->route('admin.profile')
             ->with('success', 'Profil berhasil diperbarui!');
@@ -44,7 +44,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:6|confirmed',
+            'new_password' => 'required|string|min:8|confirmed',
         ]);
 
         if (!Hash::check($validated['current_password'], $user->password)) {

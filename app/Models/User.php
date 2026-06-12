@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -21,14 +22,33 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get token expiration in minutes from config
+     */
+    public function getTokenExpiryMinutes(): int
+    {
+        return config('sanctum.expiration', 10080); // Default 7 days
+    }
+
+    /**
+     * Create token with expiration
+     */
+    public function createTokenWithExpiry(string $name, array $abilities = ['*']): array
+    {
+        $token = $this->createToken($name, $abilities);
+
+        return [
+            'token' => $token->plainTextToken,
+            'expires_at' => now()->addMinutes($this->getTokenExpiryMinutes())->toIso8601String(),
         ];
     }
 
@@ -63,7 +83,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === UserRole::Admin->value;
     }
 
     /**
@@ -71,7 +91,7 @@ class User extends Authenticatable
      */
     public function isDosen(): bool
     {
-        return $this->role === 'dosen';
+        return $this->role === UserRole::Dosen->value;
     }
 
     /**
@@ -79,7 +99,7 @@ class User extends Authenticatable
      */
     public function isMahasiswa(): bool
     {
-        return $this->role === 'mahasiswa';
+        return $this->role === UserRole::Mahasiswa->value;
     }
 
     /**
@@ -107,6 +127,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki banyak pendaftaran event
+     */
+    public function registrations()
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
+    /**
      * Register user baru
      */
     public static function register(array $data): User
@@ -114,8 +142,8 @@ class User extends Authenticatable
         return self::create([
             'nama' => $data['nama'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'mahasiswa',
+            'password' => $data['password'],
+            'role' => $data['role'] ?? UserRole::Mahasiswa->value,
         ]);
     }
 
@@ -134,33 +162,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Update profil user
-     */
-    public function updateProfil(array $data): bool
-    {
-        $updateData = [];
-
-        if (array_key_exists('nama', $data)) {
-            $updateData['nama'] = $data['nama'];
-        }
-        if (array_key_exists('email', $data)) {
-            $updateData['email'] = $data['email'];
-        }
-
-        if (!empty($updateData)) {
-            $this->update($updateData);
-        }
-
-        return true;
-    }
-
-    /**
      * Update password user
      */
     public function updatePassword(string $password): bool
     {
         $this->update([
-            'password' => Hash::make($password),
+            'password' => $password,
         ]);
 
         return true;

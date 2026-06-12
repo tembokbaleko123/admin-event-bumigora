@@ -48,11 +48,11 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password Baru</label>
-                        <input type="password" name="new_password" class="form-control" required minlength="6">
+                        <input type="password" name="new_password" class="form-control" required minlength="8">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Konfirmasi Password Baru</label>
-                        <input type="password" name="new_password_confirmation" class="form-control" required minlength="6">
+                        <input type="password" name="new_password_confirmation" class="form-control" required minlength="8">
                     </div>
                     <button type="submit" class="btn btn-primary">Ubah Password</button>
                 </form>

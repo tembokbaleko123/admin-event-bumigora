@@ -27,7 +27,7 @@ class EventAuthorizationTest extends TestCase
 
         Sanctum::actingAs($otherDosen);
 
-        $response = $this->putJson("/api/events/{$event->id}", [
+        $response = $this->putJson("/api/v1/events/{$event->id}", [
             'judul' => 'Diubah',
         ]);
 
@@ -56,9 +56,9 @@ class EventAuthorizationTest extends TestCase
 
         Sanctum::actingAs($dosen);
 
-        $response = $this->putJson("/api/events/{$event->id}", [
+        $response = $this->putJson("/api/v1/events/{$event->id}", [
             'judul' => 'Event Sudah Diupdate',
-            'kategori' => 'Workshop',
+            'kategori' => 'WORKSHOP',
         ]);
 
         $response->assertOk()
@@ -69,7 +69,29 @@ class EventAuthorizationTest extends TestCase
         $this->assertDatabaseHas('events', [
             'id' => $event->id,
             'judul' => 'Event Sudah Diupdate',
-            'kategori' => 'Workshop',
+            'kategori' => 'WORKSHOP',
         ]);
+    }
+
+    public function test_event_update_rejects_unknown_category(): void
+    {
+        $dosen = User::factory()->dosen()->create();
+
+        $event = Event::create([
+            'judul' => 'Event Kategori',
+            'tanggal' => now()->addDays(2)->toDateTimeString(),
+            'lokasi' => 'Ruang C',
+            'deskripsi' => 'Deskripsi',
+            'created_by' => $dosen->id,
+        ]);
+
+        Sanctum::actingAs($dosen);
+
+        $this->putJson("/api/v1/events/{$event->id}", [
+            'kategori' => 'LAINNYA',
+        ])->assertStatus(422)
+            ->assertJson([
+                'status' => false,
+            ]);
     }
 }

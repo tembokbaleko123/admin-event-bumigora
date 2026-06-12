@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -17,7 +17,7 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            if (in_array(Auth::user()->role, ['admin', 'dosen'])) {
+            if (in_array(Auth::user()->role, [UserRole::Admin->value, UserRole::Dosen->value])) {
                 return redirect()->route('admin.dashboard');
             }
 
@@ -34,12 +34,12 @@ class AuthController extends Controller
     {
         $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required|min:6',
+            'password' => 'required',
         ]);
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            if (!in_array($user->role, ['admin', 'dosen'])) {
+            if (!in_array($user->role, [UserRole::Admin->value, UserRole::Dosen->value])) {
                 Auth::logout();
                 return back()->withErrors([
                     'email' => 'Anda tidak memiliki akses ke panel admin.',
@@ -79,18 +79,23 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)
+            ->whereIn('role', [UserRole::Admin->value, UserRole::Dosen->value])
+            ->first();
 
-        if (!in_array($user->role, ['admin', 'dosen'])) {
-            return back()->with('error', 'Email tidak terdaftar sebagai admin atau dosen.');
+        if (!$user) {
+            return back()->with('success', 'Jika email terdaftar, Anda akan menerima tautan reset password.');
         }
 
-        // Generate token sederhana dan simpan di session
+        // Generate token dengan expiry 30 menit
         $token = bin2hex(random_bytes(32));
-        session(['reset_token_' . $user->id => $token]);
+        session(['reset_token_' . $user->id => [
+            'token' => $token,
+            'expires_at' => now()->addMinutes(30)->timestamp,
+        ]]);
         session(['reset_email' => $user->email]);
 
         return redirect()->route('admin.password.reset', ['token' => $token, 'email' => $user->email])
@@ -113,16 +118,38 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
             'token' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
-        // Verifikasi token
-        $savedToken = session('reset_token_' . $user->id);
-        if (!$savedToken || $savedToken !== $request->token) {
+        if (!$user) {
+            return back()->with('error', 'Token reset password tidak valid. Silakan ulangi proses.');
+        }
+
+        // Only admin/dosen can reset password via this flow
+        if (!in_array($user->role, [UserRole::Admin->value, UserRole::Dosen->value])) {
+            return back()->with('error', 'Token reset password tidak valid. Silakan ulangi proses.');
+        }
+
+        // Verifikasi token dengan data session
+        $savedData = session('reset_token_' . $user->id);
+
+        if (!$savedData || !isset($savedData['token'], $savedData['expires_at'])) {
+            return back()->with('error', 'Token reset password tidak valid. Silakan ulangi proses.');
+        }
+
+        // Check expiry
+        if (now()->timestamp > $savedData['expires_at']) {
+            session()->forget(['reset_token_' . $user->id, 'reset_email']);
+            return back()->with('error', 'Token reset password sudah kadaluarsa. Silakan ulangi proses.');
+        }
+
+        // Timing-safe comparison
+        if (!hash_equals($savedData['token'], $request->token)) {
+            session()->forget(['reset_token_' . $user->id, 'reset_email']);
             return back()->with('error', 'Token reset password tidak valid. Silakan ulangi proses.');
         }
 

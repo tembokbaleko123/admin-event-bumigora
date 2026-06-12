@@ -13,7 +13,7 @@ class ApiErrorContractTest extends TestCase
 
     public function test_api_returns_standard_401_when_unauthenticated(): void
     {
-        $response = $this->getJson('/api/me');
+        $response = $this->getJson('/api/v1/me');
 
         $response->assertStatus(401)
             ->assertJson([
@@ -27,7 +27,7 @@ class ApiErrorContractTest extends TestCase
         $dosen = User::factory()->dosen()->create();
         Sanctum::actingAs($dosen);
 
-        $response = $this->getJson('/api/users');
+        $response = $this->getJson('/api/v1/users');
 
         $response->assertStatus(403)
             ->assertJson([
@@ -38,7 +38,7 @@ class ApiErrorContractTest extends TestCase
 
     public function test_api_returns_standard_404_for_unknown_route(): void
     {
-        $response = $this->getJson('/api/route-tidak-ada');
+        $response = $this->getJson('/api/v1/route-tidak-ada');
 
         $response->assertStatus(404)
             ->assertJson([

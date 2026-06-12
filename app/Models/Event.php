@@ -2,30 +2,43 @@
 
 namespace App\Models;
 
+use App\Enums\EventStatus;
+use App\Enums\RegistrationStatus;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\Auditable;
 
 class Event extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $appends = ['gambar_url'];
 
     protected $fillable = [
         'judul',
         'tanggal',
+        'tanggal_selesai',
+        'batas_daftar',
         'lokasi',
         'deskripsi',
         'gambar',
         'kategori',
+        'kapasitas',
+        'status',
         'created_by',
     ];
 
     protected function casts(): array
     {
         return [
-            'tanggal' => 'date',
+            'tanggal' => 'datetime',
+            'tanggal_selesai' => 'datetime',
+            'batas_daftar' => 'datetime',
+            'kapasitas' => 'integer',
         ];
     }
 
@@ -46,16 +59,79 @@ class Event extends Model
     }
 
     /**
+     * Relasi: Event memiliki banyak Pendaftaran
+     */
+    public function registrations()
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
+    /**
+     * Relasi: Event memiliki banyak QR Token
+     */
+    public function qrTokens()
+    {
+        return $this->hasMany(EventQrToken::class);
+    }
+
+    /**
+     * Relasi: Event memiliki banyak Absensi
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Relasi: Event memiliki pendaftar aktif (registered)
+     */
+    public function activeRegistrations()
+    {
+        return $this->hasMany(EventRegistration::class)->where('status', RegistrationStatus::Registered->value);
+    }
+
+    /**
+     * Cek apakah event masih bisa didaftar
+     */
+    public function canRegister(): bool
+    {
+        if ($this->status !== EventStatus::Published->value) return false;
+        if ($this->tanggal->isPast()) return false;
+        if ($this->batas_daftar && $this->batas_daftar->isPast()) return false;
+        if ($this->kapasitas) {
+            $count = $this->confirmed_registrations_count ?? $this->confirmedRegistrations()->count();
+            if ($count >= $this->kapasitas) return false;
+        }
+        return true;
+    }
+
+    public function confirmedRegistrations()
+    {
+        return $this->hasMany(EventRegistration::class)->whereIn('status', [RegistrationStatus::Registered->value, RegistrationStatus::Attended->value]);
+    }
+
+    /**
+     * Hitung sisa kuota
+     */
+    public function getSisaKuotaAttribute(): ?int
+    {
+        if (!$this->kapasitas) return null;
+        $count = $this->confirmed_registrations_count ?? $this->confirmedRegistrations()->count();
+        return max(0, $this->kapasitas - $count);
+    }
+
+    /**
      * Scope: Filter berdasarkan pencarian
      */
     public function scopeSearch($query, ?string $search)
     {
         if ($search) {
-            return $query->where(function ($q) use ($search) {
-                $q->where('judul', 'like', "%{$search}%")
-                  ->orWhere('lokasi', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%")
-                  ->orWhere('kategori', 'like', "%{$search}%");
+            $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+            return $query->where(function ($q) use ($escaped) {
+                $q->where('judul', 'like', "%{$escaped}%")
+                  ->orWhere('lokasi', 'like', "%{$escaped}%")
+                  ->orWhere('deskripsi', 'like', "%{$escaped}%")
+                  ->orWhere('kategori', 'like', "%{$escaped}%");
             });
         }
         return $query;
@@ -67,9 +143,18 @@ class Event extends Model
     public function scopeKategori($query, ?string $kategori)
     {
         if ($kategori) {
-            return $query->where('kategori', $kategori);
+            return $query->whereRaw('UPPER(kategori) = ?', [strtoupper($kategori)]);
         }
         return $query;
+    }
+
+    public static function normalizeKategori(?string $kategori): ?string
+    {
+        if ($kategori === null || trim($kategori) === '') {
+            return null;
+        }
+
+        return strtoupper(trim($kategori));
     }
 
     /**
@@ -106,9 +191,13 @@ class Event extends Model
         $eventData = [
             'judul' => $data['judul'],
             'tanggal' => $data['tanggal'],
+            'tanggal_selesai' => $data['tanggal_selesai'] ?? null,
+            'batas_daftar' => $data['batas_daftar'] ?? null,
             'lokasi' => $data['lokasi'],
             'deskripsi' => $data['deskripsi'] ?? null,
-            'kategori' => $data['kategori'] ?? null,
+            'kategori' => self::normalizeKategori($data['kategori'] ?? null),
+            'kapasitas' => $data['kapasitas'] ?? null,
+            'status' => $creator->isAdmin() ? ($data['status'] ?? EventStatus::Published->value) : EventStatus::Pending->value,
             'created_by' => $creator->id,
         ];
 
@@ -116,16 +205,25 @@ class Event extends Model
             $eventData['gambar'] = self::uploadGambar($data['gambar']);
         }
 
-        $event = self::create($eventData);
+        return DB::transaction(function () use ($eventData) {
+            $event = self::create($eventData);
 
-        // Kirim notifikasi ke mahasiswa tentang event baru
-        Notifikasi::kirimNotifikasiKeRole(
-            'mahasiswa',
-            "Event baru: {$event->judul} pada {$event->tanggal->format('d M Y')} di {$event->lokasi}",
-            $event
-        );
+            if ($event->status === EventStatus::Published->value) {
+                Notifikasi::kirimNotifikasiKeRole(
+                    UserRole::Mahasiswa->value,
+                    "Event baru: {$event->judul} pada {$event->tanggal->format('d M Y')} di {$event->lokasi}",
+                    $event
+                );
+            } else {
+                Notifikasi::kirimNotifikasiKeRole(
+                    UserRole::Admin->value,
+                    "Event menunggu persetujuan: {$event->judul}",
+                    $event
+                );
+            }
 
-        return $event;
+            return $event;
+        });
     }
 
     /**
@@ -141,6 +239,12 @@ class Event extends Model
         if (array_key_exists('tanggal', $data)) {
             $updateData['tanggal'] = $data['tanggal'];
         }
+        if (array_key_exists('tanggal_selesai', $data)) {
+            $updateData['tanggal_selesai'] = $data['tanggal_selesai'];
+        }
+        if (array_key_exists('batas_daftar', $data)) {
+            $updateData['batas_daftar'] = $data['batas_daftar'];
+        }
         if (array_key_exists('lokasi', $data)) {
             $updateData['lokasi'] = $data['lokasi'];
         }
@@ -148,7 +252,13 @@ class Event extends Model
             $updateData['deskripsi'] = $data['deskripsi'];
         }
         if (array_key_exists('kategori', $data)) {
-            $updateData['kategori'] = $data['kategori'];
+            $updateData['kategori'] = self::normalizeKategori($data['kategori']);
+        }
+        if (array_key_exists('kapasitas', $data)) {
+            $updateData['kapasitas'] = $data['kapasitas'];
+        }
+        if (array_key_exists('status', $data)) {
+            $updateData['status'] = $data['status'];
         }
 
         // Handle gambar upload
@@ -163,14 +273,19 @@ class Event extends Model
             $updateData['gambar'] = null;
         }
 
-        $this->update($updateData);
+        if (!empty($updateData)) {
+            DB::transaction(function () use ($updateData) {
+                $this->update($updateData);
 
-        // Kirim notifikasi update ke mahasiswa
-        Notifikasi::kirimNotifikasiKeRole(
-            'mahasiswa',
-            "Event diupdate: {$this->judul}",
-            $this
-        );
+                if ($this->status === EventStatus::Published->value) {
+                    Notifikasi::kirimNotifikasiKeRole(
+                        UserRole::Mahasiswa->value,
+                        "Event diupdate: {$this->judul}",
+                        $this
+                    );
+                }
+            });
+        }
 
         return true;
     }
@@ -182,15 +297,17 @@ class Event extends Model
     {
         $judul = $this->judul;
 
-        $this->hapusGambar();
-        $this->delete();
+        DB::transaction(function () use ($judul) {
+            $this->hapusGambar();
+            $this->delete();
 
-        // Kirim notifikasi pembatalan
-        Notifikasi::kirimNotifikasiKeRole(
-            'mahasiswa',
-            "Event dibatalkan: {$judul}",
-            null
-        );
+            // Kirim notifikasi pembatalan
+            Notifikasi::kirimNotifikasiKeRole(
+                UserRole::Mahasiswa->value,
+                "Event dibatalkan: {$judul}",
+                null
+            );
+        });
 
         return true;
     }

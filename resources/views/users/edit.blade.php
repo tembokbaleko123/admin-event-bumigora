@@ -26,7 +26,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password <small class="text-muted">(kosongkan jika tidak ingin mengubah)</small></label>
-                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" minlength="6">
+                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" minlength="8">
                         @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-4">
@@ -35,9 +35,9 @@
                             <input type="hidden" name="role" value="{{ $user->role }}">
                         @endif
                         <select name="role" class="form-select @error('role') is-invalid @enderror" required @disabled($isEditingSelf)>
-                            <option value="mahasiswa" {{ old('role', $user->role) === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-                            <option value="dosen" {{ old('role', $user->role) === 'dosen' ? 'selected' : '' }}>Dosen</option>
-                            <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="{{ \App\Enums\UserRole::Mahasiswa->value }}" {{ old('role', $user->role) === \App\Enums\UserRole::Mahasiswa->value ? 'selected' : '' }}>Mahasiswa</option>
+                            <option value="{{ \App\Enums\UserRole::Dosen->value }}" {{ old('role', $user->role) === \App\Enums\UserRole::Dosen->value ? 'selected' : '' }}>Dosen</option>
+                            <option value="{{ \App\Enums\UserRole::Admin->value }}" {{ old('role', $user->role) === \App\Enums\UserRole::Admin->value ? 'selected' : '' }}>Admin</option>
                         </select>
                         @error('role')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         @if($isEditingSelf)

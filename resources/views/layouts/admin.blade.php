@@ -16,6 +16,8 @@
     <link rel="icon" href="https://bumigora.ac.id/wp-content/uploads/2022/11/cropped-Logo-Universitas-Bumigora-192x192.png" sizes="192x192">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -135,6 +137,7 @@
         @keyframes slideDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,.3); } 50% { box-shadow: 0 0 20px 6px rgba(79,70,229,.1); } }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes skeleton-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
         @keyframes ripple { to { width: 300px; height: 300px; opacity: 0; } }
 
@@ -725,6 +728,7 @@
             .header-left .header-title p { display: none; }
         }
     </style>
+    @livewireStyles
 </head>
 <body>
     @php
@@ -850,27 +854,15 @@
         <!-- Page Content -->
         <div class="page-content">
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
-                    <i class="bi bi-check-circle-fill"></i>
-                    {{ session('success') }}
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                </div>
+                <div id="swal-success" data-message="{{ session('success') }}" style="display:none;"></div>
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    {{ session('error') }}
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                </div>
+                <div id="swal-error" data-message="{{ session('error') }}" style="display:none;"></div>
             @endif
 
             @if($errors->any())
-                <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    {{ $errors->first() }}
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                </div>
+                <div id="swal-validation" data-message="{{ $errors->first() }}" style="display:none;"></div>
             @endif
 
             @yield('content')
@@ -882,6 +874,55 @@
 
     @stack('scripts')
     <script>
+        // SweetAlert2 Toasts for session messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+
+            const success = document.getElementById('swal-success');
+            if (success) {
+                Toast.fire({ icon: 'success', title: success.dataset.message });
+            }
+            const error = document.getElementById('swal-error');
+            if (error) {
+                Toast.fire({ icon: 'error', title: error.dataset.message });
+            }
+            const validation = document.getElementById('swal-validation');
+            if (validation) {
+                Toast.fire({ icon: 'warning', title: validation.dataset.message });
+            }
+        });
+
+        // SweetAlert2 confirmation for delete forms
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form[data-confirm]').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Konfirmasi',
+                        text: form.dataset.confirm,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) form.submit();
+                    });
+                });
+            });
+        });
+
         // Dark mode toggle
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('themeToggle');
@@ -905,16 +946,6 @@
                 if (window.dispatchEvent) {
                     window.dispatchEvent(new Event('resize'));
                 }
-            });
-        });
-
-        // Auto-close alerts after 5s with smooth animation
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.alert-dismissible').forEach(function(alert) {
-                setTimeout(function() {
-                    var bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }, 5000);
             });
         });
 
@@ -947,5 +978,6 @@
             });
         });
     </script>
+    @livewireScripts
 </body>
 </html>
